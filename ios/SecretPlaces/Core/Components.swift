@@ -151,8 +151,8 @@ struct PasswordLockedHint: View {
 }
 
 struct SectionHeader: View {
-    let title: String
-    var subtitle: String? = nil
+    let title: LocalizedStringKey
+    var subtitle: LocalizedStringKey? = nil
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(title).font(.title3.bold()).foregroundStyle(Theme.text)

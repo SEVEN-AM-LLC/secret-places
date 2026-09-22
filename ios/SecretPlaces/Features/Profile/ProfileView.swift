@@ -9,6 +9,7 @@ struct ProfileView: View {
     @State private var showOnboarding = false
     @State private var showDeleteConfirm = false
     @State private var restoreMessage: String?
+    @AppStorage("app_language") private var appLanguage = AppLanguage.system.rawValue
 
     var body: some View {
         List {
@@ -28,6 +29,12 @@ struct ProfileView: View {
 
             Section("Personalize") {
                 Button { showOnboarding = true } label: { Label("Your interests", systemImage: "slider.horizontal.3") }
+                Picker(selection: $appLanguage) {
+                    ForEach(AppLanguage.allCases) { lang in
+                        // "System" localizes; the two endonyms stay verbatim in both locales.
+                        (lang == .system ? Text("System") : Text(verbatim: lang.label)).tag(lang.rawValue)
+                    }
+                } label: { Label("Language", systemImage: "globe") }
                 Toggle(isOn: locationBinding) { Label("Location access", systemImage: "location") }
                     .disabled(location.authorization != .notDetermined)
             }

@@ -57,7 +57,7 @@ struct EventsView: View {
             .padding(.vertical, 10)
         }
         .background(Theme.bg)
-        .navigationTitle("Афіша")
+        .navigationTitle("What's on")
         .withAppDestinations()
         .task { if case .idle = vm.state { await vm.load(env, cityId: cityId) } }
     }
@@ -75,7 +75,7 @@ struct EventsView: View {
         }
     }
 
-    private func chip(title: String, icon: String, active: Bool, _ tap: @escaping () -> Void) -> some View {
+    private func chip(title: LocalizedStringKey, icon: String, active: Bool, _ tap: @escaping () -> Void) -> some View {
         Button(action: tap) {
             HStack(spacing: 6) { Image(systemName: icon); Text(title) }
                 .font(.subheadline.weight(.medium))
@@ -89,7 +89,7 @@ struct EventsView: View {
 
 /// Display metadata for the event taxonomy (labels + SF Symbols).
 enum EventKind {
-    static func label(_ k: String) -> String {
+    static func label(_ k: String) -> LocalizedStringKey {
         switch k {
         case "rave": return "Raves"
         case "club": return "Club"

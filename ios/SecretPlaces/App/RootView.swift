@@ -7,6 +7,8 @@ struct RootView: View {
         TabView {
             NavigationStack { DiscoverView() }
                 .tabItem { Label("Discover", systemImage: "sparkles") }
+            NavigationStack { EventsView() }
+                .tabItem { Label("Events", systemImage: "ticket") }
             NavigationStack { MapExploreView() }
                 .tabItem { Label("Map", systemImage: "map") }
             NavigationStack { SavedView() }

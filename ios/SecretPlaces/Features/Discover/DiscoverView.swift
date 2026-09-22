@@ -95,7 +95,7 @@ struct DiscoverView: View {
         }
     }
 
-    private func rail(_ title: String, _ places: [PlaceTeaser]) -> some View {
+    private func rail(_ title: LocalizedStringKey, _ places: [PlaceTeaser]) -> some View {
         Group {
             if !places.isEmpty {
                 VStack(alignment: .leading, spacing: 10) {
@@ -118,7 +118,7 @@ struct DiscoverView: View {
             if !vm.events.isEmpty {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
-                        SectionHeader(title: "Афіша — what's on")
+                        SectionHeader(title: "What's on")
                         Spacer()
                         NavigationLink { EventsView() } label: { Text("See all").font(.subheadline).foregroundStyle(Theme.accent) }
                     }.padding(.horizontal, 14)

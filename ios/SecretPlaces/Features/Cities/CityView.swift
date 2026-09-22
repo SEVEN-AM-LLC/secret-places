@@ -29,7 +29,7 @@ struct CityView: View {
 
                 if !events.isEmpty {
                     HStack {
-                        SectionHeader(title: "Афіша in \(city.title)")
+                        SectionHeader(title: "What's on in \(city.title)")
                         Spacer()
                         NavigationLink { EventsView(cityId: city.id) } label: {
                             Text("See all").font(.subheadline).foregroundStyle(Theme.accent)
