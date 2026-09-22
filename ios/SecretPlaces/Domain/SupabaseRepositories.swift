@@ -101,9 +101,9 @@ final class SupabaseSearchService: SearchService {
             query: [q("select", "*"), q("or", "(teaser_title.ilike.\(like),teaser_description.ilike.\(like))"), q("limit", "40")],
             as: [PlaceTeaser].self)
         async let cities = client.select("cities",
-            query: [q("select", "*"), q("title.ilike", like), q("limit", "10")], as: [City].self)
+            query: [q("select", "*"), q("title", "ilike.\(like)"), q("limit", "10")], as: [City].self)
         async let hoods = client.select("neighborhoods",
-            query: [q("select", "*"), q("title.ilike", like), q("limit", "10")], as: [Neighborhood].self)
+            query: [q("select", "*"), q("title", "ilike.\(like)"), q("limit", "10")], as: [Neighborhood].self)
         return try await SearchResults(places: places, cities: cities, neighborhoods: hoods)
     }
 }
