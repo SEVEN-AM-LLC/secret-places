@@ -91,7 +91,7 @@ struct PlaceDetailView: View {
 
     @ViewBuilder private func content(_ d: PlaceDetails) -> some View {
         VStack(alignment: .leading, spacing: 18) {
-            RemoteImage(url: d.heroImageUrl, height: 240)
+            RemoteImage(url: d.heroImageUrl, height: 240, credit: true)
             VStack(alignment: .leading, spacing: 14) {
                 HStack {
                     PriceTag(label: d.priceLabel, isFree: d.accessType == .free || (d.isFreeNow ?? false))
@@ -111,7 +111,7 @@ struct PlaceDetailView: View {
     }
 
     private func header(fromTeaser: Bool) -> some View {
-        Group { if let t = teaser { RemoteImage(url: t.heroImageUrl, height: 240) } }
+        Group { if let t = teaser { RemoteImage(url: t.heroImageUrl, height: 240, credit: true) } }
     }
 
     private func quickFacts(_ d: PlaceDetails) -> some View {

@@ -6,10 +6,19 @@ import SwiftUI
 struct RemoteImage: View {
     let url: String?
     var height: CGFloat = 180
+    /// Show the photo source credit (required for Google Places photos).
+    var credit: Bool = false
 
     private var placeholder: some View {
         LinearGradient(colors: [Theme.surface2, Theme.surface], startPoint: .topLeading, endPoint: .bottomTrailing)
             .overlay { Image(systemName: "photo").font(.title2).foregroundStyle(Theme.textMuted.opacity(0.55)) }
+    }
+
+    /// A remote photo we cached from a provider that requires attribution.
+    private var creditLabel: String? {
+        guard credit, let s = url else { return nil }
+        if s.contains("googleusercontent.com") || s.contains("googleapis.com") { return "Photo · Google" }
+        return nil
     }
 
     var body: some View {
@@ -32,6 +41,15 @@ struct RemoteImage: View {
             }
             .frame(width: geo.size.width, height: height)
             .clipped()
+            .overlay(alignment: .bottomTrailing) {
+                if let label = creditLabel {
+                    Text(label)
+                        .font(.caption2).foregroundStyle(.white.opacity(0.9))
+                        .padding(.horizontal, 7).padding(.vertical, 3)
+                        .background(.black.opacity(0.45), in: Capsule())
+                        .padding(8)
+                }
+            }
         }
         .frame(height: height)
     }
