@@ -1,5 +1,29 @@
 import SwiftUI
 
+/// Teaser card for a curated collection (used on the Discover "Collections" rail).
+struct CollectionCard: View {
+    let collection: PlaceCollection
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            ZStack(alignment: .bottomLeading) {
+                RemoteImage(url: collection.coverUrl, height: 150)
+                LinearGradient(colors: [.clear, .black.opacity(0.7)], startPoint: .center, endPoint: .bottom)
+                Text(collection.title)
+                    .font(.title3.bold()).foregroundStyle(.white)
+                    .lineLimit(2).padding(12)
+            }
+            VStack(alignment: .leading, spacing: 6) {
+                if let d = collection.description {
+                    Text(d).font(.subheadline).foregroundStyle(Theme.textMuted).lineLimit(2)
+                }
+                PriceTag(label: collection.isFree ? "Free" : Config.defaultPriceLabel, isFree: collection.isFree)
+            }
+            .padding(12)
+        }
+        .cardBackground()
+    }
+}
+
 struct CollectionDetailView: View {
     let collection: PlaceCollection
     @EnvironmentObject private var env: AppEnvironment

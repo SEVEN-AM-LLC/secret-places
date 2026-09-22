@@ -9,6 +9,7 @@ final class DiscoverViewModel: ObservableObject {
     @Published var cities: [City] = []
     @Published var events: [EventItem] = []
     @Published var routes: [RouteSummary] = []
+    @Published var collections: [PlaceCollection] = []
     @Published var state: LoadState<Bool> = .idle
 
     func load(_ env: AppEnvironment) async {
@@ -21,6 +22,7 @@ final class DiscoverViewModel: ObservableObject {
             async let cities = env.geo.cities()
             async let events = env.events.upcoming(cityId: nil, limit: 10)
             async let routes = env.routes.list(cityId: nil)
+            async let collections = env.collections.collections()
             self.featured = try await featured
             self.freeToday = try await free
             self.editors = try await editors
@@ -28,6 +30,7 @@ final class DiscoverViewModel: ObservableObject {
             self.cities = try await cities
             self.events = (try? await events) ?? []
             self.routes = (try? await routes) ?? []
+            self.collections = (try? await collections) ?? []
             state = .loaded(true)
         } catch let e as AppError {
             state = e == .offline ? .offline : .failed(e)
@@ -50,6 +53,7 @@ struct DiscoverView: View {
                 case .failed(let e): ErrorStateView(error: e) { Task { await vm.load(env) } }
                 default:
                     rail("Featured secrets", vm.featured)
+                    collectionsRail
                     eventsRail
                     crawlsRail
                     rail("Free today", vm.freeToday)
@@ -143,6 +147,24 @@ struct DiscoverView: View {
                         HStack(spacing: 14) {
                             ForEach(vm.routes) { r in
                                 NavigationLink(value: r) { RouteCard(route: r).frame(width: 280) }.buttonStyle(.plain)
+                            }
+                        }.padding(.horizontal, 14)
+                    }
+                }
+            }
+        }
+    }
+
+    private var collectionsRail: some View {
+        Group {
+            if !vm.collections.isEmpty {
+                VStack(alignment: .leading, spacing: 10) {
+                    SectionHeader(title: "Collections", subtitle: "Curated loops of hidden places").padding(.horizontal, 14)
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 14) {
+                            ForEach(vm.collections) { c in
+                                NavigationLink(value: c) { CollectionCard(collection: c).frame(width: 260) }
+                                    .buttonStyle(.plain)
                             }
                         }.padding(.horizontal, 14)
                     }
