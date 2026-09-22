@@ -1848,6 +1848,94 @@
           }
         }
       }
+    },
+    "Network problem: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Проблема з мережею: %@"
+          }
+        }
+      }
+    },
+    "Could not read the data: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не вдалося зчитати дані: %@"
+          }
+        }
+      }
+    },
+    "Server error (%lld): %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Помилка сервера (%lld): %@"
+          }
+        }
+      }
+    },
+    "Purchase failed: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Помилка покупки: %@"
+          }
+        }
+      }
+    },
+    "Language changed": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Мову змінено"
+          }
+        }
+      }
+    },
+    "Restart now": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перезапустити зараз"
+          }
+        }
+      }
+    },
+    "Later": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пізніше"
+          }
+        }
+      }
+    },
+    "Restart the app to apply the new language everywhere.": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перезапустіть застосунок, щоб застосувати нову мову всюди."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

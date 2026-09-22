@@ -9,7 +9,8 @@ struct ProfileView: View {
     @State private var showOnboarding = false
     @State private var showDeleteConfirm = false
     @State private var restoreMessage: String?
-    @AppStorage("app_language") private var appLanguage = AppLanguage.system.rawValue
+    @State private var languageSelection = AppLanguage.current.rawValue
+    @State private var showRestartPrompt = false
 
     var body: some View {
         List {
@@ -29,12 +30,17 @@ struct ProfileView: View {
 
             Section("Personalize") {
                 Button { showOnboarding = true } label: { Label("Your interests", systemImage: "slider.horizontal.3") }
-                Picker(selection: $appLanguage) {
+                Picker(selection: $languageSelection) {
                     ForEach(AppLanguage.allCases) { lang in
                         // "System" localizes; the two endonyms stay verbatim in both locales.
                         (lang == .system ? Text("System") : Text(verbatim: lang.label)).tag(lang.rawValue)
                     }
                 } label: { Label("Language", systemImage: "globe") }
+                .onChange(of: languageSelection) { _, new in
+                    guard let lang = AppLanguage(rawValue: new), lang != AppLanguage.current else { return }
+                    lang.apply()
+                    showRestartPrompt = true
+                }
                 Toggle(isOn: locationBinding) { Label("Location access", systemImage: "location") }
                     .disabled(location.authorization != .notDetermined)
             }
@@ -69,6 +75,10 @@ struct ProfileView: View {
             Button("Delete everything", role: .destructive) { Task { try? await env.deleteAccount() } }
             Button("Cancel", role: .cancel) {}
         } message: { Text("This permanently deletes your account, saves, visits and unlock records. This cannot be undone.") }
+        .alert("Language changed", isPresented: $showRestartPrompt) {
+            Button("Restart now", role: .destructive) { exit(0) }
+            Button("Later", role: .cancel) {}
+        } message: { Text("Restart the app to apply the new language everywhere.") }
     }
 
     private var locationBinding: Binding<Bool> {

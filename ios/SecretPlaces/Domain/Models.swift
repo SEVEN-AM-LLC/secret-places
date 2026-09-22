@@ -107,7 +107,7 @@ struct PlaceTeaser: Codable, Equatable, Hashable, Identifiable, Sendable {
         return CLLocationCoordinate2D(latitude: la, longitude: ln)
     }
     var priceLabel: String {
-        if isFreeExperience { return "Free" }
+        if isFreeExperience { return String(localized: "Free") }
         return String(format: "$%.2f", Double(priceCents) / 100.0)
     }
 }
@@ -174,7 +174,7 @@ struct PlaceDetails: Codable, Equatable, Identifiable, Sendable {
         return CLLocationCoordinate2D(latitude: la, longitude: ln)
     }
     var priceLabel: String {
-        if accessType == .free || (isFreeNow ?? false) { return "Free" }
+        if accessType == .free || (isFreeNow ?? false) { return String(localized: "Free") }
         return String(format: "$%.2f", Double(priceCents) / 100.0)
     }
     var displayTitle: String { isUnlocked ? (fullTitle ?? teaserTitle) : teaserTitle }
@@ -233,9 +233,9 @@ struct EventItem: Codable, Equatable, Hashable, Identifiable, Sendable {
     let venueAccess: AccessType?
 
     var priceLabel: String {
-        if isFree { return "Free" }
-        if let c = priceFromCents { return "from \(c/100) \(currency)" }
-        return "Ticketed"
+        if isFree { return String(localized: "Free") }
+        if let c = priceFromCents { return String(localized: "from \(c/100) \(currency)") }
+        return String(localized: "Ticketed")
     }
 }
 
@@ -258,7 +258,7 @@ struct RouteSummary: Codable, Equatable, Hashable, Identifiable, Sendable {
     let featured: Bool
     let stopCount: Int
 
-    var priceLabel: String { isFree ? "Free" : String(format: "$%.2f", Double(priceCents) / 100.0) }
+    var priceLabel: String { isFree ? String(localized: "Free") : String(format: "$%.2f", Double(priceCents) / 100.0) }
 }
 
 struct RouteStop: Codable, Equatable, Sendable {
@@ -307,5 +307,5 @@ struct RouteDetails: Codable, Equatable, Identifiable, Sendable {
     let owned: Bool
     let stops: [RouteStop]
 
-    var priceLabel: String { isFree ? "Free" : String(format: "$%.2f", Double(priceCents) / 100.0) }
+    var priceLabel: String { isFree ? String(localized: "Free") : String(format: "$%.2f", Double(priceCents) / 100.0) }
 }

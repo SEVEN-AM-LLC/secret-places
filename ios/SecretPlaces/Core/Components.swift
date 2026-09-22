@@ -166,7 +166,8 @@ struct LoadingView: View {
 }
 
 struct EmptyStateView: View {
-    let icon: String, title: String, message: String
+    let icon: String
+    let title: LocalizedStringKey, message: LocalizedStringKey
     var body: some View {
         VStack(spacing: 10) {
             Image(systemName: icon).font(.largeTitle).foregroundStyle(Theme.textMuted)

@@ -23,7 +23,7 @@ struct SavedView: View {
 
     var body: some View {
         ScrollView {
-            Picker("", selection: $tab) { ForEach(Tab.allCases, id: \.self) { Text($0.rawValue).tag($0) } }
+            Picker("", selection: $tab) { ForEach(Tab.allCases, id: \.self) { Text(LocalizedStringKey($0.rawValue)).tag($0) } }
                 .pickerStyle(.segmented).padding(14)
 
             if !auth.isSignedIn {
@@ -63,7 +63,7 @@ struct SavedView: View {
     private var emptyIcon: String {
         switch tab { case .unlocked: return "lock.open"; case .saved: return "bookmark"; case .visited: return "checkmark.seal"; case .want: return "heart" }
     }
-    private var emptyMessage: String {
+    private var emptyMessage: LocalizedStringKey {
         switch tab {
         case .unlocked: return "Unlock a secret place to keep it here forever."
         case .saved: return "Save places you want to remember."

@@ -92,7 +92,7 @@ struct RouteDetailView: View {
     @ViewBuilder private func content(_ route: RouteDetails) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 10) {
-                PriceTag(label: route.owned ? "Unlocked" : route.priceLabel, isFree: route.isFree || route.owned)
+                PriceTag(label: route.owned ? String(localized: "Unlocked") : route.priceLabel, isFree: route.isFree || route.owned)
                 Label("\(route.stops.count) stops", systemImage: "mappin.circle").font(.caption).foregroundStyle(Theme.textMuted)
                 if let d = route.durationMin { Label("\(d) min", systemImage: "clock").font(.caption).foregroundStyle(Theme.textMuted) }
                 if let dist = route.distanceM { Label(String(format: "%.1f km", Double(dist)/1000), systemImage: "figure.walk").font(.caption).foregroundStyle(Theme.textMuted) }
