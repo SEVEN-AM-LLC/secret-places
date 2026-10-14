@@ -28,6 +28,7 @@ private struct TokenResponse: Decodable {
     struct AuthUser: Decodable { let id: String; let email: String? }
 }
 
+@MainActor
 protocol AuthServicing: AnyObject {
     var currentUserId: String? { get }
     var isSignedIn: Bool { get }
@@ -41,10 +42,15 @@ final class AuthStore: ObservableObject, AuthServicing {
     @Published private(set) var session: AuthSession?
     let tokens = TokenHolder()
 
-    private let defaultsKey = "sp_auth_session"
+    private let storageKey = "sp_auth_session"
 
     init() {
-        if let data = UserDefaults.standard.data(forKey: defaultsKey),
+        // One-time migration: older builds kept the session in UserDefaults.
+        if let legacy = UserDefaults.standard.data(forKey: storageKey) {
+            Keychain.set(legacy, for: storageKey)
+            UserDefaults.standard.removeObject(forKey: storageKey)
+        }
+        if let data = Keychain.data(for: storageKey),
            let s = try? JSONDecoder().decode(AuthSession.self, from: data) {
             session = s
             tokens.set(token: s.accessToken, userId: s.userId)
@@ -79,7 +85,7 @@ final class AuthStore: ObservableObject, AuthServicing {
     func signOut() {
         session = nil
         tokens.set(token: nil, userId: nil)
-        UserDefaults.standard.removeObject(forKey: defaultsKey)
+        Keychain.delete(storageKey)
     }
 
     /// Called on a 401. Tries to refresh the access token with the refresh token;
@@ -94,22 +100,27 @@ final class AuthStore: ObservableObject, AuthServicing {
         req.setValue(Config.supabaseAnonKey, forHTTPHeaderField: "apikey")
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.httpBody = try? JSONSerialization.data(withJSONObject: ["refresh_token": refreshToken])
+        let data: Data, resp: URLResponse
         do {
-            let (data, resp) = try await URLSession.shared.data(for: req)
-            guard let http = resp as? HTTPURLResponse, (200..<300).contains(http.statusCode) else { throw AppError.notAuthenticated }
-            let decoder = JSONDecoder(); decoder.keyDecodingStrategy = .convertFromSnakeCase
-            let tr = try decoder.decode(TokenResponse.self, from: data)
-            apply(AuthSession(accessToken: tr.accessToken, refreshToken: tr.refreshToken, userId: tr.user.id, email: tr.user.email))
-            return true
+            (data, resp) = try await URLSession.shared.data(for: req)
         } catch {
-            signOut()   // dead session → continue as guest
+            return false   // offline / transport error: keep the session, don't retry
+        }
+        guard let http = resp as? HTTPURLResponse else { return false }
+        if (500..<600).contains(http.statusCode) { return false }   // server hiccup: keep the session
+        let decoder = JSONDecoder(); decoder.keyDecodingStrategy = .convertFromSnakeCase
+        guard (200..<300).contains(http.statusCode),
+              let tr = try? decoder.decode(TokenResponse.self, from: data) else {
+            signOut()   // refresh token rejected → continue as guest
             return true
         }
+        apply(AuthSession(accessToken: tr.accessToken, refreshToken: tr.refreshToken, userId: tr.user.id, email: tr.user.email))
+        return true
     }
 
     private func apply(_ s: AuthSession) {
         session = s
         tokens.set(token: s.accessToken, userId: s.userId)
-        if let data = try? JSONEncoder().encode(s) { UserDefaults.standard.set(data, forKey: defaultsKey) }
+        if let data = try? JSONEncoder().encode(s) { Keychain.set(data, for: storageKey) }
     }
 }

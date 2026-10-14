@@ -1,6 +1,7 @@
 import Foundation
 import CoreLocation
 
+@MainActor
 protocol LocationServing: AnyObject {
     var authorization: CLAuthorizationStatus { get }
     var lastCoordinate: CLLocationCoordinate2D? { get }

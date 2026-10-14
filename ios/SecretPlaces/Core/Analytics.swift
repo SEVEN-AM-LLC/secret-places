@@ -48,8 +48,8 @@ protocol AnalyticsService: Sendable {
 /// Console analytics — a lightweight abstraction; swap for a real provider later.
 /// Deliberately records only coarse, non-identifying parameters.
 final class ConsoleAnalytics: AnalyticsService {
-    private let enabled: () -> Bool
-    init(enabled: @escaping () -> Bool = { true }) { self.enabled = enabled }
+    private let enabled: @Sendable () -> Bool
+    init(enabled: @escaping @Sendable () -> Bool = { true }) { self.enabled = enabled }
     func track(_ event: AnalyticsEvent) {
         guard enabled() else { return }
         #if DEBUG
