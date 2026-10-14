@@ -47,8 +47,8 @@ INDEX = f"""<main class="wrap">
   <img class="icon" src="/icon-512.png" alt="Secret Places app icon">
   <h1 lang="en">The city's best-kept secrets</h1>
   <h1 lang="uk">Найкраще сховані секрети міста</h1>
-  <p class="lede" lang="en">Hidden courtyards, unmarked bars, quiet viewpoints and underground nights across Ukraine — curated by locals, revealed when you're ready to go.</p>
-  <p class="lede" lang="uk">Приховані дворики, бари без вивісок, тихі оглядові майданчики й андерграундні вечірки по всій Україні — зібрані місцевими й відкриваються, коли ти готовий іти.</p>
+  <p class="lede" lang="en">Hidden courtyards, unmarked bars, quiet viewpoints and underground nights — curated by locals, revealed when you're ready to go. Starting in Ukraine, with more cities on the way.</p>
+  <p class="lede" lang="uk">Приховані дворики, бари без вивісок, тихі оглядові майданчики й андерграундні вечірки — зібрані місцевими й відкриваються, коли ти готовий іти. Починаємо з України, далі — нові міста світу.</p>
   <span class="badge"><span lang="en">Coming soon to the App Store</span><span lang="uk">Незабаром в App Store</span></span>
 </section>
 <section class="features">
@@ -62,8 +62,8 @@ INDEX = f"""<main class="wrap">
     <p lang="uk">Готові бар-кроли та андерграундні вечори, зупинка за зупинкою — разом із паролями на вході.</p></div>
   <div class="card"><span class="ic">🎟️</span>
     <h3 lang="en">What's on</h3><h3 lang="uk">Афіша</h3>
-    <p lang="en">Concerts, theatre, markets and club nights in Kyiv and other Ukrainian cities.</p>
-    <p lang="uk">Концерти, театр, маркети й клубні ночі в Києві та інших містах України.</p></div>
+    <p lang="en">Concerts, theatre, markets and club nights in the cities we cover.</p>
+    <p lang="uk">Концерти, театр, маркети й клубні ночі в містах, які ми охоплюємо.</p></div>
 </section>
 </main>"""
 
@@ -158,8 +158,8 @@ SUPPORT = f"""<main class="wrap doc">
 </main>"""
 
 pages = {
-  "index.html": page("index", "Secret Places — hidden spots across Ukraine", "Secret Places — приховані місця України",
-                     "Hidden courtyards, unmarked bars, quiet viewpoints and underground nights across Ukraine.", INDEX),
+  "index.html": page("index", "Secret Places — hidden spots, revealed", "Secret Places — приховані місця",
+                     "Hidden courtyards, unmarked bars, quiet viewpoints and underground nights, curated by locals.", INDEX),
   "privacy/index.html": page("privacy", "Privacy Policy — Secret Places", "Політика приватності — Secret Places",
                        "How the Secret Places app handles your data.", PRIVACY),
   "support/index.html": page("support", "Support — Secret Places", "Підтримка — Secret Places",
