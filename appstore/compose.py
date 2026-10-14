@@ -18,12 +18,15 @@ SF = "/System/Library/Fonts/SFNS.ttf"
 CAPTIONS = {
     "en-US": {
         "01-discover": ("The city's best-kept secrets", "Hidden bars, quiet viewpoints and underground nights, curated by locals."),
-        "02-locked":   ("Secrets stay secret", "See the vibe and the rough area. Unlock the exact spot when you're ready."),
-        "03-map":      ("The hidden city, mapped", "Free spots in green. Locked ones only show an approximate area."),
-        "04-unlocked": ("Get the door word", "The exact spot, directions and the password to get in."),
-        "05-route":    ("Follow a night route", "Self-guided crawls: every unmarked door, in order."),
+        "02-cities":   ("17 cities and counting", "Lisbon, Paris, Berlin, London, Kyiv and more. Pick one, or let the app find yours."),
+        "03-paris-map": ("Paris, mapped in secrets", "One city pass unlocks every hidden spot in town."),
+        "04-locked":   ("Secrets stay secret", "See the vibe and the rough area. Unlock the exact spot when you're ready."),
+        "05-unlocked": ("Get the door word", "The exact spot, directions and the door password."),
+        "06-route":    ("Follow a night route", "Self-guided crawls: every unmarked door, in order."),
     },
 }
+# Raw pixels to cut from the bottom of a capture (the map provider's watermark sits just above the tab bar).
+CROP_BOTTOM = {"03-paris-map": 330}
 
 
 def font(size: int, weight: bytes) -> ImageFont.FreeTypeFont:
@@ -57,7 +60,7 @@ def background() -> Image.Image:
     return Image.composite(Image.new("RGB", (W, H), GOLD), img, glow.point(lambda v: v * 0.35))
 
 
-def compose(raw: Path, title: str, subtitle: str) -> Image.Image:
+def compose(raw: Path, title: str, subtitle: str, crop_bottom: int = 0) -> Image.Image:
     img = background()
     d = ImageDraw.Draw(img)
     margin = 96
@@ -73,9 +76,12 @@ def compose(raw: Path, title: str, subtitle: str) -> Image.Image:
 
     # device screen: scaled, rounded, with a thin bezel; bleeds off the bottom edge
     shot = Image.open(raw).convert("RGB")
+    if crop_bottom:
+        shot = shot.crop((0, 0, shot.width, shot.height - crop_bottom))
     sw = int(W * 0.80)
     shot = shot.resize((sw, int(shot.height * sw / shot.width)), Image.LANCZOS)
     top = max(y + 80, 700)
+    top = max(top, H - int(shot.height) + 60)  # a cropped capture must still bleed off the bottom edge
     radius, bezel = 96, 14
     frame = Image.new("RGBA", (sw + 2 * bezel, shot.height + 2 * bezel), (0, 0, 0, 0))
     ImageDraw.Draw(frame).rounded_rectangle([0, 0, frame.width - 1, frame.height - 1], radius + bezel, fill=(52, 52, 62, 255))
@@ -97,5 +103,5 @@ if __name__ == "__main__":
         out = HERE / locale
         out.mkdir(exist_ok=True)
         for name, (title, subtitle) in caps.items():
-            compose(HERE / "raw" / f"{name}.png", title, subtitle).save(out / f"{name}.png", optimize=True)
+            compose(HERE / "raw" / f"{name}.png", title, subtitle, CROP_BOTTOM.get(name, 0)).save(out / f"{name}.png", optimize=True)
             print(f"{locale}/{name}.png")
