@@ -4,7 +4,7 @@ import Foundation
 enum Config {
     static let supabaseURL: URL = {
         let s = Bundle.main.object(forInfoDictionaryKey: "SUPABASE_URL") as? String ?? ""
-        return URL(string: s) ?? URL(string: "https://api.secretplaces.7am.agency")!
+        return URL(string: s) ?? URL(string: "https://api.secretplaces.7am.digital")!
     }()
 
     static let supabaseAnonKey: String =

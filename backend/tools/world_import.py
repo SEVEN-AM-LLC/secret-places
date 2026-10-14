@@ -49,8 +49,9 @@ CITIES = [
 
 # kind -> (category slug, cap per city)
 KINDS = {
-    "speakeasy": ("bars", 8), "rooftop": ("rooftops", 5), "night": ("night", 5), "viewpoint": ("viewpoints", 6),
-    "historic": ("architecture", 6), "mural": ("culture", 5), "garden": ("walks", 4), "coffee": ("coffee", 6),
+    "speakeasy": ("bars", 15), "rooftop": ("rooftops", 8), "night": ("night", 8), "viewpoint": ("viewpoints", 10),
+    "historic": ("architecture", 12), "landmark": ("culture", 8), "mural": ("culture", 8), "garden": ("walks", 8),
+    "coffee": ("coffee", 12),
 }
 PAID_KINDS = {"speakeasy", "rooftop", "night"}
 
@@ -82,6 +83,11 @@ TEASERS = {
                  ["Most people walk straight past — stop, and it starts talking.",
                   "Off the main route, and all the better for it.",
                   "Small, quiet, and older than everything around it."]),
+    "landmark": (["A local landmark with a better story than the sign", "A corner of the city worth slowing down for",
+                  "The place locals take visiting friends", "Something the city is quietly proud of"],
+                 ["Go early, before the crowds, and it feels like yours.",
+                  "Most people rush past — give it ten minutes.",
+                  "Small detail, long history, worth the short detour."]),
     "mural": (["A wall worth the detour", "Street art you'll only spot if you look up", "The mural locals point friends to"],
               ["Turn the corner and there it is — bigger than you expected.",
                "A wall most people walk straight past.",
@@ -127,6 +133,7 @@ def overpass(lat: float, lng: float) -> list[dict]:
       node["tourism"="artwork"]["artwork_type"="mural"]["name"]{r};
       node["historic"]["name"]["wikidata"]{r};
       node["leisure"="garden"]["name"]{r};
+      node["tourism"="attraction"]["name"]["wikidata"]{r};
     );out body;"""
     data = urllib.parse.urlencode({"data": q}).encode()
     for attempt in range(3):
@@ -159,6 +166,8 @@ def kind_of(t: dict) -> str | None:
         return "mural"
     if t.get("historic") in HISTORIC_OK and t.get("wikidata"):
         return "historic"
+    if t.get("tourism") == "attraction" and t.get("wikidata"):
+        return "landmark"
     if t.get("leisure") == "garden":
         return "garden"
     if t.get("amenity") == "cafe":
@@ -216,7 +225,7 @@ def city_sql(c) -> tuple[list[str], int, int]:
         fd = f"{name}. " + (f"Find it at {addr}. " if t.get("addr:street") else f"In {ctitle}. ") + (f"Hours: {oh}. " if oh else "") + "Data © OpenStreetMap contributors."
         featured = "true" if (k in ("speakeasy", "viewpoint", "rooftop") and h(slug + "f") % 6 == 0) else "false"
         editors = "true" if quality(t) >= 4 and h(slug + "e") % 3 == 0 else "false"
-        best_time = {"night": "night", "speakeasy": "evening", "rooftop": "sunset", "viewpoint": "sunset", "coffee": "morning"}.get(k, "afternoon")
+        best_time = {"night": "night", "speakeasy": "evening", "rooftop": "sunset", "viewpoint": "sunset", "coffee": "morning", "landmark": "morning"}.get(k, "afternoon")
         duration = {"night": 240, "speakeasy": 90, "rooftop": 90, "coffee": 45}.get(k, 60)
         q = lambda v: f"'{esc(v)}'" if v else "null"
         vals.append(f"('{slug}','{esc(tt)}','{esc(td)}','{esc(name)}','{esc(fd)}',{lat},{lng},{round(lat, 2)},{round(lng, 2)},"

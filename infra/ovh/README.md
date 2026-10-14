@@ -5,7 +5,9 @@ The backend runs as the official self-hosted Supabase Docker stack on the shared
 
 | | |
 |---|---|
-| Public API | `https://api.secretplaces.7am.agency` (CloudPanel reverse-proxy site, Let's Encrypt) |
+| Public API | `https://api.secretplaces.7am.digital` (CloudPanel reverse-proxy site, Let's Encrypt) |
+| Legacy API | `https://api.secretplaces.7am.agency` — same backend; keep it: app 1.0.0 (and every install of it) has this URL baked in |
+| Website | `https://secretplaces.7am.digital` (CloudPanel static site; legacy `secretplaces.7am.agency` still serves the same files) |
 | Stack dir | `/opt/secretplaces-supabase` (secrets in `.env`, mode 600 — never commit) |
 | Gateway | Envoy on `127.0.0.1:61000` — the only thing nginx proxies to |
 | Postgres pooler | `127.0.0.1:61432` (session) / `127.0.0.1:61543` (transaction) |
