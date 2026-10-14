@@ -61,6 +61,10 @@ final class MockPlaceRepository: PlaceRepository, @unchecked Sendable {
             appleMapsUrl: nil, googleMapsUrl: nil, unlockScope: "place", cityTitle: nil)
     }
 
+    func cityCounts() async throws -> [String: Int] {
+        teasers.reduce(into: [:]) { acc, t in if let c = t.cityId { acc[c, default: 0] += 1 } }
+    }
+
     func nearby(lat: Double, lng: Double, radiusM: Double, limit: Int) async throws -> [NearbyPlace] {
         teasers.compactMap { t in
             guard let la = t.approxLat, let ln = t.approxLng else { return nil }

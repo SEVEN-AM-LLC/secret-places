@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import CoreLocation
 
 /// Dependency container. Constructed once and injected via the SwiftUI environment.
 /// Uses protocols for every service so tests/previews can inject mocks.
@@ -27,6 +28,15 @@ final class AppEnvironment: ObservableObject {
     /// Cached categories (backend-configured, not hardcoded).
     @Published var categories: [Category] = []
     @Published var savedIds: Set<String> = []
+
+    /// Cities that have at least one published place, and how many each has.
+    @Published private(set) var cities: [City] = []
+    @Published private(set) var countries: [Country] = []
+    @Published private(set) var placeCounts: [String: Int] = [:]
+    /// The city Discover is scoped to (persisted).
+    @Published private(set) var selectedCityId: String?
+    var selectedCity: City? { cities.first { $0.id == selectedCityId } }
+    private static let cityKey = "sp_selected_city"
     @Published var placeStatuses: [String: PlaceUserStatus] = [:]
 
     init(preview: Bool = false) {
@@ -63,6 +73,7 @@ final class AppEnvironment: ObservableObject {
         if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil { return }
         analytics.track(.appOpen)
         if let cats = try? await categoriesRepo.categories() { categories = cats }
+        await loadGeo()
         await entitlements.refresh()
         await refreshUserState()
     }
@@ -72,6 +83,58 @@ final class AppEnvironment: ObservableObject {
         if let ids = try? await saved.savedIds() { savedIds = ids }
         if let st = try? await saved.statuses() { placeStatuses = st }
     }
+
+    // MARK: City selection
+
+    /// Loads the city list and picks the Discover city: the saved one, else the nearest
+    /// (only if location is already allowed — never prompts on launch), else Kyiv.
+    func loadGeo() async {
+        async let c = geo.cities()
+        async let k = geo.countries()
+        async let counts = places.cityCounts()
+        guard let all = try? await c else { return }
+        countries = (try? await k) ?? []
+        placeCounts = (try? await counts) ?? [:]
+        cities = all.filter { (placeCounts[$0.id] ?? 0) > 0 }
+        if let saved = UserDefaults.standard.string(forKey: Self.cityKey), cities.contains(where: { $0.id == saved }) {
+            selectedCityId = saved
+        } else if let here = await location.requestLocation(), let near = nearestCity(to: here) {
+            selectCity(near.id)
+        } else {
+            selectedCityId = (cities.first { $0.slug == "kyiv" } ?? cities.first)?.id
+        }
+    }
+
+    func selectCity(_ id: String) {
+        selectedCityId = id
+        UserDefaults.standard.set(id, forKey: Self.cityKey)
+    }
+
+    /// Asks for location if needed, then switches to the nearest covered city.
+    /// Returns false when there's no permission or no city within reach.
+    @discardableResult
+    func selectNearestCity() async -> Bool {
+        if location.authorization == .notDetermined {
+            location.requestPermission()
+            for _ in 0..<40 where location.authorization == .notDetermined { try? await Task.sleep(for: .milliseconds(250)) }
+        }
+        guard let here = await location.requestLocation(), let near = nearestCity(to: here) else { return false }
+        selectCity(near.id)
+        return true
+    }
+
+    private func nearestCity(to c: CLLocationCoordinate2D, withinKm: Double = 80) -> City? {
+        let here = CLLocation(latitude: c.latitude, longitude: c.longitude)
+        return cities
+            .compactMap { city -> (City, Double)? in
+                guard let la = city.lat, let ln = city.lng else { return nil }
+                return (city, here.distance(from: CLLocation(latitude: la, longitude: ln)))
+            }
+            .filter { $0.1 <= withinKm * 1000 }
+            .min { $0.1 < $1.1 }?.0
+    }
+
+    func country(for id: String?) -> Country? { countries.first { $0.id == id } }
 
     func isUnlocked(_ placeId: String) async -> Bool { await entitlements.isUnlocked(placeId: placeId) }
 

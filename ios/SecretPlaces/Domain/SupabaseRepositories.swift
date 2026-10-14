@@ -33,6 +33,12 @@ final class SupabasePlaceRepository: PlaceRepository {
         try await client.rpc("get_place_details", params: ["p_place_id": AnyEncodable(id)], as: PlaceDetails.self)
     }
 
+    func cityCounts() async throws -> [String: Int] {
+        struct Row: Decodable { let cityId: String? }
+        let rows = try await client.select("places_public", query: [q("select", "city_id"), q("limit", "10000")], as: [Row].self)
+        return rows.reduce(into: [:]) { acc, r in if let c = r.cityId { acc[c, default: 0] += 1 } }
+    }
+
     func nearby(lat: Double, lng: Double, radiusM: Double, limit: Int) async throws -> [NearbyPlace] {
         try await client.rpc("nearby_places", params: [
             "p_lat": AnyEncodable(lat), "p_lng": AnyEncodable(lng),

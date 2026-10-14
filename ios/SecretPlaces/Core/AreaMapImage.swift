@@ -12,6 +12,8 @@ struct AreaMapImage: View {
     var locked: Bool = false
     /// Edge length of the shown region; widen it to fit several stops.
     var spanMeters: CLLocationDistance = 1600
+    /// Off for overview maps (e.g. a whole city) where a "somewhere here" zone makes no sense.
+    var showsMarker: Bool = true
 
     @State private var snapshot: UIImage?
     @Environment(\.displayScale) private var displayScale
@@ -24,7 +26,7 @@ struct AreaMapImage: View {
                     Image(uiImage: snapshot).resizable().scaledToFill().transition(.opacity)
                 }
                 LinearGradient(colors: [.clear, Theme.bg.opacity(0.35)], startPoint: .center, endPoint: .bottom)
-                if coordinate != nil { zoneMarker(diameter: min(geo.size.width, height) * 0.55) }
+                if coordinate != nil { if showsMarker { zoneMarker(diameter: min(geo.size.width, height) * 0.55) } }
                 else { Image(systemName: "map").font(.title2).foregroundStyle(Theme.textMuted.opacity(0.55)) }
             }
             .frame(width: geo.size.width, height: height)

@@ -26,6 +26,8 @@ protocol PlaceRepository: Sendable {
     func byIds(_ ids: [String]) async throws -> [PlaceTeaser]
     func details(id: String) async throws -> PlaceDetails
     func nearby(lat: Double, lng: Double, radiusM: Double, limit: Int) async throws -> [NearbyPlace]
+    /// Published places per city id.
+    func cityCounts() async throws -> [String: Int]
 }
 
 protocol GeoRepository: Sendable {

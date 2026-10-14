@@ -1966,6 +1966,86 @@
           }
         }
       }
+    },
+    "Choose a city": {
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Обери місто"
+          }
+        }
+      }
+    },
+    "Use my location": {
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Моє місцезнаходження"
+          }
+        }
+      }
+    },
+    "Other cities": {
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Інші міста"
+          }
+        }
+      }
+    },
+    "%lld secrets": {
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Секретів: %lld"
+          }
+        }
+      }
+    },
+    "We couldn't find a covered city near you. Pick one below — more cities are on the way.": {
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поруч з тобою поки немає міста з нашими місцями. Обери зі списку — нові міста вже на підході."
+          }
+        }
+      }
+    },
+    "City or country": {
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Місто або країна"
+          }
+        }
+      }
+    },
+    "City: %@": {
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Місто: %@"
+          }
+        }
+      }
+    },
+    "Choose a different city": {
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Обрати інше місто"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
