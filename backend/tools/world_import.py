@@ -94,7 +94,7 @@ for country_slug,country_name,emoji,cslug,ctitle,clat,clng in CITIES:
             featured='true' if (cat=='viewpoints' and i<2) else 'false'
             editors='true' if int(hashlib.md5((slug+'e').encode()).hexdigest(),16)%9==0 else 'false'
             rows.append((slug,tt,td,name,fd,lat,lng,round(lat,2),round(lng,2),addr or f"{ctitle}",name,
-                         website,oh,CATID[cat],access,price,(f"com.secretplaces.place.{slug}" if paid else None),
+                         website,oh,CATID[cat],access,price,(f"com.secretplaces.place.{slug.replace('-', '_')}" if paid else None),
                          featured,editors,str(e['id'])))
     summary[cslug]=len(rows)
     if not rows: continue

@@ -14,7 +14,7 @@ import StoreKitTest
 /// stays green — the assertions still run wherever the test store is active.
 final class StoreKitPurchaseTests: XCTestCase {
     var session: SKTestSession!
-    let productId = "com.secretplaces.place.gg-unmarked-cocktail-bar"
+    let productId = "com.secretplaces.place.k41"
 
     override func setUpWithError() throws {
         session = try SKTestSession(configurationFileNamed: "SecretPlaces")
@@ -27,9 +27,9 @@ final class StoreKitPurchaseTests: XCTestCase {
     /// Skips the test unless the local StoreKit test store is active.
     private func requireStoreKitTesting() async throws -> [Product] {
         let products = try await Product.products(for: [
-            "com.secretplaces.place.gg-unmarked-cocktail-bar",
-            "com.secretplaces.place.gg-rooftop-date-view",
-            "com.secretplaces.place.podil-river-sauna",
+            "com.secretplaces.place.k41",
+            "com.secretplaces.place.krysha_933879",
+            "com.secretplaces.route.gg_after_dark",
         ])
         try XCTSkipUnless(!products.isEmpty, "StoreKit Testing store not active in this environment")
         return products
@@ -39,7 +39,9 @@ final class StoreKitPurchaseTests: XCTestCase {
         let products = try await requireStoreKitTesting()
         XCTAssertEqual(products.count, 3)
         XCTAssertTrue(products.allSatisfy { $0.type == .nonConsumable })
-        XCTAssertTrue(products.allSatisfy { $0.displayPrice.contains("0.99") })
+        let places = products.filter { $0.id.hasPrefix("com.secretplaces.place.") }
+        XCTAssertEqual(places.count, 2)
+        XCTAssertTrue(places.allSatisfy { $0.displayPrice.contains("0.99") })
     }
 
     func testPurchaseProducesVerifiedTransactionWithJWS() async throws {
