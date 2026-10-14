@@ -46,7 +46,7 @@ for (const [locale, l] of Object.entries<any>(meta.localizations)) {
 }
 
 // --- Screenshots (6.9" iPhone set). Locales without their own folder fall back to the primary set in App Store Connect.
-const md5 = async (b: Uint8Array) => Array.from(new Uint8Array(await stdCrypto.subtle.digest("MD5", b))).map((x) => x.toString(16).padStart(2, "0")).join("");
+const md5 = async (b: Uint8Array<ArrayBuffer>) => Array.from(new Uint8Array(await stdCrypto.subtle.digest("MD5", b))).map((x) => x.toString(16).padStart(2, "0")).join("");
 for (const locale of Object.keys(meta.localizations)) {
   const dir = new URL(`${locale}/`, root);
   let files: string[];
