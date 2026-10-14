@@ -106,5 +106,24 @@ Deno.serve(async (req) => {
     return json({ unlocked: true, kind: "route", route_id: route.id, route: details });
   }
 
+  // 3) City pass? (unlocks every paid place in the city)
+  const { data: city } = await admin.from("cities").select("id, slug").eq("pass_product_id", productId).maybeSingle();
+  if (city) {
+    const { data: existing } = await admin.from("user_entitlements")
+      .select("id").eq("user_id", userId).eq("city_id", city.id).maybeSingle();
+    if (!existing) {
+      const { error } = await admin.from("user_entitlements").insert({
+        user_id: userId, city_id: city.id, product_id: productId,
+        transaction_id: transactionId, original_transaction_id: originalTransactionId,
+        source: "app_store", revoked_at: null,
+      });
+      if (error) { console.error("verify-purchase: insert city", error.message); return json({ error: "entitlement_error" }, 500); }
+    }
+    // The client bought the pass from a place screen — hand back that place, now unlocked.
+    const placeId = typeof body.placeId === "string" ? body.placeId : null;
+    const { data: details } = placeId ? await asUser.rpc("get_place_details", { p_place_id: placeId }) : { data: null };
+    return json({ unlocked: true, kind: "city", city_id: city.id, place_id: placeId, place: details });
+  }
+
   return json({ error: "unknown_product" }, 400);
 });

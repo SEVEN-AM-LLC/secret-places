@@ -1936,6 +1936,36 @@
           }
         }
       }
+    },
+    "City pass": {
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пропуск на місто"
+          }
+        }
+      }
+    },
+    "Unlock all of %@ · %@": {
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відкрити все місто %1$@ · %2$@"
+          }
+        }
+      }
+    },
+    "One pass unlocks every secret place in %@.": {
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Один пропуск відкриває всі секретні місця в місті %@."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

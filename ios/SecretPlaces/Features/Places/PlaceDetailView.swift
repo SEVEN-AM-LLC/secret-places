@@ -131,6 +131,13 @@ struct PlaceDetailView: View {
 
     // MARK: Locked
 
+    private func unlockTitle(_ d: PlaceDetails) -> String {
+        if d.unlocksWithCityPass, let city = d.cityTitle {
+            return String(localized: "Unlock all of \(city) · \(vm.priceLabel)")
+        }
+        return String(localized: "Unlock for \(vm.priceLabel)")
+    }
+
     private func lockedCallToAction(_ d: PlaceDetails) -> some View {
         VStack(alignment: .leading, spacing: 14) {
             HStack(spacing: 8) {
@@ -139,6 +146,10 @@ struct PlaceDetailView: View {
             }
             Text("Unlock to reveal the exact location, directions, the full guide and insider tips.")
                 .font(.subheadline).foregroundStyle(Theme.textMuted)
+            if d.unlocksWithCityPass, let city = d.cityTitle {
+                Label("One pass unlocks every secret place in \(city).", systemImage: "ticket.fill")
+                    .font(.subheadline.weight(.semibold)).foregroundStyle(Theme.accent)
+            }
             if d.requiresPassword { PasswordLockedHint() }
             approxMap(d)
             Button {
@@ -147,7 +158,7 @@ struct PlaceDetailView: View {
             } label: {
                 HStack {
                     if purchases.purchasingProductId != nil { ProgressView().tint(.black) }
-                    Text(purchases.purchasingProductId != nil ? "Unlocking…" : "Unlock for \(vm.priceLabel)")
+                    Text(purchases.purchasingProductId != nil ? "Unlocking…" : unlockTitle(d))
                         .font(.headline)
                 }.frame(maxWidth: .infinity).padding(.vertical, 6)
             }

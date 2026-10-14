@@ -14,6 +14,7 @@ const only = Deno.args[0]; // optional productId filter for a dry single run
 const appleId = (id: string) => id.replace(/-/g, "_");
 type P = { productId: string; ref: string; name: string; desc: string; price: string };
 const places = await sb("places_public?select=slug,product_id,price_cents&access_type=eq.paid&product_id=not.is.null");
+const cities = await sb("cities?select=slug,title,pass_product_id,pass_price_cents&pass_product_id=not.is.null");
 const routes = await sb("routes_public?select=slug,title,product_id,price_cents,is_free&is_free=eq.false");
 const cut = (s: string, n: number) => (s.length <= n ? s : s.slice(0, n - 1).trimEnd() + "…");
 const products: P[] = [
@@ -21,6 +22,8 @@ const products: P[] = [
     name: "Unlock this secret place", desc: "Exact spot, directions and insider tips", price: (p.price_cents / 100).toFixed(2) })),
   ...routes.map((r: any) => ({ productId: r.product_id, ref: cut(`Route — ${r.title}`, 64),
     name: cut(r.title, 30), desc: "Self-guided route: every stop, in order", price: (r.price_cents / 100).toFixed(2) })),
+  ...cities.map((c: any) => ({ productId: c.pass_product_id, ref: cut(`City pass — ${c.title}`, 64),
+    name: cut(`${c.title} City Pass`, 30), desc: cut(`Unlocks every secret place in ${c.title}`, 45), price: (c.pass_price_cents / 100).toFixed(2) })),
 ].map((p) => ({ ...p, productId: appleId(p.productId) })).filter((p) => !only || p.productId === only);
 console.log(`catalogue: ${products.length} products`);
 

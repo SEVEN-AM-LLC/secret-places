@@ -108,6 +108,8 @@ struct PlaceTeaser: Codable, Equatable, Hashable, Identifiable, Sendable {
     }
     var priceLabel: String {
         if isFreeExperience { return String(localized: "Free") }
+        // No product of its own → sold through the city pass, not for this price alone.
+        if productId == nil { return String(localized: "City pass") }
         return String(format: "$%.2f", Double(priceCents) / 100.0)
     }
 }
@@ -166,8 +168,12 @@ struct PlaceDetails: Codable, Equatable, Identifiable, Sendable {
     let entryNote: String?
     let appleMapsUrl: String?
     let googleMapsUrl: String?
+    /// "city" when this place is sold through its city's pass (productId is then the pass).
+    let unlockScope: String?
+    let cityTitle: String?
 
     var isUnlocked: Bool { !locked }
+    var unlocksWithCityPass: Bool { unlockScope == "city" }
     var requiresPassword: Bool { hasEntryPassword ?? false }
     var exactCoordinate: CLLocationCoordinate2D? {
         guard let la = exactLat, let ln = exactLng else { return nil }

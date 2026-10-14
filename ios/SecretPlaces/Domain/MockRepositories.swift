@@ -58,7 +58,7 @@ final class MockPlaceRepository: PlaceRepository, @unchecked Sendable {
             website: nil, bookingUrl: nil,
             entryPassword: unlocked ? "the gate is the sign" : nil,
             entryNote: unlocked ? "Face control at the gate." : nil,
-            appleMapsUrl: nil, googleMapsUrl: nil)
+            appleMapsUrl: nil, googleMapsUrl: nil, unlockScope: "place", cityTitle: nil)
     }
 
     func nearby(lat: Double, lng: Double, radiusM: Double, limit: Int) async throws -> [NearbyPlace] {
