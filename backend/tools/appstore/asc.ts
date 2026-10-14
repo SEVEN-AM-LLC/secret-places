@@ -18,7 +18,13 @@ async function jwt() {
 export async function api(method: string, path: string, body?: unknown): Promise<any> {
   const url = path.startsWith("http") ? path : `https://api.appstoreconnect.apple.com${path}`;
   for (let attempt = 0; ; attempt++) {
-    const r = await fetch(url, { method, headers: { Authorization: `Bearer ${await jwt()}`, "Content-Type": "application/json" }, body: body ? JSON.stringify(body) : undefined });
+    let r: Response;
+    try {
+      r = await fetch(url, { method, headers: { Authorization: `Bearer ${await jwt()}`, "Content-Type": "application/json" }, body: body ? JSON.stringify(body) : undefined });
+    } catch (e) {
+      if (attempt < 5) { await new Promise((s) => setTimeout(s, 3000 * (attempt + 1))); continue; } // transient network error
+      throw e;
+    }
     if (r.status === 429 && attempt < 5) { await new Promise((s) => setTimeout(s, 2000 * (attempt + 1))); continue; }
     const text = await r.text();
     const json = text ? JSON.parse(text) : {};
