@@ -93,8 +93,8 @@ ratings · report a place · onboarding interests · notification preferences ·
 
 See the final report / `docs/ARCHITECTURE.md` §"Remaining configuration": Apple Developer team &
 bundle id, Sign in with Apple key wired into Supabase Auth, App Store Connect IAP products, and
-`APPLE_VERIFY=strict` + Apple root certs on the `verify-purchase` function for production JWS
-verification.
+`APPLE_ROOT_CERTS` + `APPLE_APP_ID` secrets on the `verify-purchase` function (it verifies
+Production and Sandbox transactions and fails closed without them).
 
 ## Data attribution
 

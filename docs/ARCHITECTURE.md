@@ -53,10 +53,10 @@ price/product fields; `user_entitlements` references both `place_id` and `collec
 3. **App Store Connect**: create the non-consumable IAP products matching
    `com.secretplaces.place.<slug>` ($0.99) — the seeded products are listed in
    `ios/SecretPlaces/Support/SecretPlaces.storekit`.
-4. **Production purchase verification**: set `APPLE_VERIFY=strict`, `APPLE_BUNDLE_ID`,
-   `APPLE_ENVIRONMENT`, and `APPLE_ROOT_CERTS` on the `verify-purchase` function to enable full
-   cryptographic JWS + cert-chain verification (the code path already exists via
-   `@apple/app-store-server-library`). Without these it runs in dev-decode mode.
+4. **Purchase verification**: `verify-purchase` always verifies the JWS signature + cert chain
+   with `@apple/app-store-server-library` and accepts both Production and Sandbox (TestFlight /
+   App Review) transactions. It needs `APPLE_ROOT_CERTS` (AppleRootCA-G3) and `APPLE_APP_ID`
+   set as function secrets; without them it fails closed (500). `APPLE_VERIFY=dev` is local-only.
 5. **Push notifications**: APNs key + a scheduler for "Free Secret Today" / nearby alerts
    (preferences table + UI already exist).
 

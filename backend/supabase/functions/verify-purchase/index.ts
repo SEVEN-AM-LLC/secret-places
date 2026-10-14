@@ -6,17 +6,17 @@
 //   • a route product (com.secretplaces.route.<slug>) → unlock a bar crawl
 //     (and, transitively, every place it contains)
 // Entitlements are the ONLY way a client obtains exact locations, so this
-// function is the trust boundary. Production verification uses Apple's
-// official library when APPLE_VERIFY=strict + root certs are configured;
-// otherwise it decodes + validates structurally so the flow is testable.
+// function is the trust boundary. Transactions are verified with Apple's
+// official library against Apple's root CA, accepting both Production and
+// Sandbox (TestFlight / App Review) — see verify.ts. APPLE_VERIFY=dev skips
+// signature checks and must only ever be used locally.
 // ============================================================
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { configFromEnv, verifyTransaction, VerifyError } from "./verify.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const APPLE_BUNDLE_ID = Deno.env.get("APPLE_BUNDLE_ID") ?? "com.secretplaces.app";
-const APPLE_ENVIRONMENT = Deno.env.get("APPLE_ENVIRONMENT") ?? "Sandbox";
-const STRICT = (Deno.env.get("APPLE_VERIFY") ?? "dev") === "strict";
+const CONFIG = configFromEnv((k) => Deno.env.get(k));
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -25,24 +25,6 @@ const cors = {
 };
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { ...cors, "Content-Type": "application/json" } });
-}
-function b64urlToJson(seg: string): any {
-  const b64 = seg.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(seg.length / 4) * 4, "=");
-  return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(b64), (c) => c.charCodeAt(0))));
-}
-function decodeTransaction(jws: string): any {
-  const [h, p] = jws.split(".");
-  if (!h || !p) throw new Error("malformed_jws");
-  return b64urlToJson(p);
-}
-async function verifyStrict(jws: string): Promise<any> {
-  const roots = (Deno.env.get("APPLE_ROOT_CERTS") ?? "").split(",").map((s) => s.trim()).filter(Boolean)
-    .map((b64) => Uint8Array.from(atob(b64), (c) => c.charCodeAt(0)));
-  if (roots.length === 0) throw new Error("apple_root_certs_missing");
-  const lib = await import("npm:@apple/app-store-server-library@1.4.0");
-  const env = APPLE_ENVIRONMENT === "Production" ? lib.Environment.PRODUCTION : lib.Environment.SANDBOX;
-  const verifier = new lib.SignedDataVerifier(roots, true, env, APPLE_BUNDLE_ID);
-  return await verifier.verifyAndDecodeTransaction(jws);
 }
 
 Deno.serve(async (req) => {
@@ -64,18 +46,35 @@ Deno.serve(async (req) => {
   if (!body.transactionJWS) return json({ error: "missing_transaction" }, 400);
 
   let tx: any;
-  try { tx = STRICT ? await verifyStrict(body.transactionJWS) : decodeTransaction(body.transactionJWS); }
-  catch (e) { return json({ error: "verification_failed", detail: String(e) }, 400); }
+  try { tx = await verifyTransaction(body.transactionJWS, CONFIG); }
+  catch (e) {
+    const code = e instanceof VerifyError ? e.code : "verification_failed";
+    // Misconfiguration is our fault, not the client's — surface it as a 500.
+    const status = code === "apple_root_certs_missing" || code === "apple_app_id_missing" ? 500
+      : code === "verification_unavailable" ? 503 : 400;
+    console.error("verify-purchase:", code, e instanceof VerifyError ? "" : String(e));
+    return json({ error: code }, status);
+  }
 
   const productId: string | undefined = tx.productId;
   const originalTransactionId: string | undefined = tx.originalTransactionId ?? tx.transactionId;
   const transactionId: string | undefined = tx.transactionId;
   const bundleId: string | undefined = tx.bundleId ?? tx.appBundleId;
   if (!productId || !transactionId) return json({ error: "incomplete_transaction" }, 400);
-  if (STRICT && bundleId && bundleId !== APPLE_BUNDLE_ID) return json({ error: "bundle_mismatch" }, 400);
+  if (CONFIG.strict && bundleId !== CONFIG.bundleId) return json({ error: "bundle_mismatch" }, 400);
   if (tx.revocationDate) return json({ error: "revoked" }, 400);
 
   const admin = createClient(SUPABASE_URL, SERVICE_ROLE);
+
+  // A signed transaction is a bearer token: stop one purchase from being replayed
+  // to unlock content on other accounts. (Entitlements cascade-delete with the
+  // account, so a deleted-and-recreated account can still restore.)
+  if (originalTransactionId) {
+    const { data: claimed, error: claimErr } = await admin.from("user_entitlements")
+      .select("user_id").eq("original_transaction_id", originalTransactionId).neq("user_id", userId).limit(1);
+    if (claimErr) return json({ error: "entitlement_error" }, 500);
+    if (claimed && claimed.length > 0) return json({ error: "transaction_already_claimed" }, 409);
+  }
 
   // 1) Place product?
   const { data: place } = await admin.from("places").select("id, product_id").eq("product_id", productId).maybeSingle();
@@ -85,7 +84,7 @@ Deno.serve(async (req) => {
       transaction_id: transactionId, original_transaction_id: originalTransactionId,
       source: "app_store", revoked_at: null,
     }, { onConflict: "user_id,place_id,original_transaction_id" });
-    if (error) return json({ error: "entitlement_error", detail: error.message }, 500);
+    if (error) { console.error("verify-purchase: upsert", error.message); return json({ error: "entitlement_error" }, 500); }
     const { data: details } = await asUser.rpc("get_place_details", { p_place_id: place.id });
     return json({ unlocked: true, kind: "place", place_id: place.id, place: details });
   }
@@ -101,7 +100,7 @@ Deno.serve(async (req) => {
         transaction_id: transactionId, original_transaction_id: originalTransactionId,
         source: "app_store", revoked_at: null,
       });
-      if (error) return json({ error: "entitlement_error", detail: error.message }, 500);
+      if (error) { console.error("verify-purchase: upsert", error.message); return json({ error: "entitlement_error" }, 500); }
     }
     const { data: details } = await asUser.rpc("get_route_details", { p_slug: route.slug });
     return json({ unlocked: true, kind: "route", route_id: route.id, route: details });
