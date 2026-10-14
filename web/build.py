@@ -47,8 +47,8 @@ INDEX = f"""<main class="wrap">
   <img class="icon" src="/icon-512.png" alt="Secret Places app icon">
   <h1 lang="en">The city's best-kept secrets</h1>
   <h1 lang="uk">Найкраще сховані секрети міста</h1>
-  <p class="lede" lang="en">Hidden courtyards, unmarked bars, quiet viewpoints and underground nights — curated by locals, revealed when you're ready to go. Starting in Ukraine, with more cities on the way.</p>
-  <p class="lede" lang="uk">Приховані дворики, бари без вивісок, тихі оглядові майданчики й андерграундні вечірки — зібрані місцевими й відкриваються, коли ти готовий іти. Починаємо з України, далі — нові міста світу.</p>
+  <p class="lede" lang="en">Hidden courtyards, unmarked bars, quiet viewpoints and underground nights — curated by locals, revealed when you're ready to go. Now in 17 cities, from Lisbon to Tbilisi.</p>
+  <p class="lede" lang="uk">Приховані дворики, бари без вивісок, тихі оглядові майданчики й андерграундні вечірки — зібрані місцевими й відкриваються, коли ти готовий іти. Уже 17 міст — від Лісабона до Тбілісі.</p>
   <span class="badge"><span lang="en">Coming soon to the App Store</span><span lang="uk">Незабаром в App Store</span></span>
 </section>
 <section class="features">
@@ -62,8 +62,8 @@ INDEX = f"""<main class="wrap">
     <p lang="uk">Готові бар-кроли та андерграундні вечори, зупинка за зупинкою — разом із паролями на вході.</p></div>
   <div class="card"><span class="ic">🎟️</span>
     <h3 lang="en">What's on</h3><h3 lang="uk">Афіша</h3>
-    <p lang="en">Concerts, theatre, markets and club nights in the cities we cover.</p>
-    <p lang="uk">Концерти, театр, маркети й клубні ночі в містах, які ми охоплюємо.</p></div>
+    <p lang="en">Concerts, theatre, markets and club nights in Ukrainian cities.</p>
+    <p lang="uk">Концерти, театр, маркети й клубні ночі в українських містах.</p></div>
 </section>
 </main>"""
 
