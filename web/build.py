@@ -96,6 +96,8 @@ PRIVACY = f"""<main class="wrap doc">
   "<b>Твоя активність у застосунку.</b> Місця, які ти зберігаєш, позначаєш відвіданими чи оцінюєш, і все, що ти нам надсилаєш. Це прив’язано до акаунта, щоб синхронізуватися між пристроями."),
  ("<b>Purchases.</b> When you unlock a place or route, Apple sends the app a signed transaction. We store the product, transaction identifiers and date to record your unlock. Payment is handled entirely by Apple — we never see your card or payment details.",
   "<b>Покупки.</b> Коли ти відкриваєш місце чи маршрут, Apple передає застосунку підписану транзакцію. Ми зберігаємо продукт, ідентифікатори транзакції та дату, щоб зафіксувати доступ. Оплату повністю обробляє Apple — даних твоєї картки ми не бачимо."),
+ ("<b>Searches.</b> What you type into search is sent to our server to find places. Our server logs can keep it for a short time; it is not linked to your account.",
+  "<b>Пошук.</b> Те, що ти вводиш у пошук, надсилається на наш сервер, щоб знайти місця. Журнали сервера можуть недовго це зберігати; до акаунта воно не прив’язується."),
  ("<b>Location (optional).</b> If you allow it, the app uses your approximate location only while you're using it, to show places near you. It is sent to our server to run that search and is not stored or linked to your account. You can use the app fully without location by choosing a city.",
   "<b>Геолокація (необов’язково).</b> Якщо дозволиш, застосунок використовує твоє приблизне місцезнаходження лише під час роботи, щоб показати місця поруч. Воно передається на сервер для пошуку, не зберігається і не прив’язується до акаунта. Без геолокації застосунком можна повністю користуватися, обравши місто."),
 ])}
