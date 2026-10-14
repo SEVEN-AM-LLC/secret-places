@@ -6,8 +6,21 @@ final class MapViewModel: ObservableObject {
     @Published var places: [PlaceTeaser] = []
     @Published var selected: PlaceTeaser?
 
-    func load(_ env: AppEnvironment) async {
-        places = (try? await env.places.list(PlaceQuery(limit: 200))) ?? []
+    func load(_ env: AppEnvironment, cityId: String?) async {
+        places = (try? await env.places.list(PlaceQuery(cityId: cityId, limit: 500))) ?? []
+    }
+
+    /// A region that fits every place in the city, or the city centre when it has none.
+    func region(for city: City?) -> MKCoordinateRegion? {
+        let coords = places.compactMap(\.approxCoordinate)
+        if let minLat = coords.map(\.latitude).min(), let maxLat = coords.map(\.latitude).max(),
+           let minLng = coords.map(\.longitude).min(), let maxLng = coords.map(\.longitude).max() {
+            return MKCoordinateRegion(
+                center: .init(latitude: (minLat + maxLat) / 2, longitude: (minLng + maxLng) / 2),
+                span: .init(latitudeDelta: max((maxLat - minLat) * 1.35, 0.04), longitudeDelta: max((maxLng - minLng) * 1.35, 0.04)))
+        }
+        guard let la = city?.lat, let ln = city?.lng else { return nil }
+        return MKCoordinateRegion(center: .init(latitude: la, longitude: ln), span: .init(latitudeDelta: 0.15, longitudeDelta: 0.15))
     }
 }
 
@@ -17,8 +30,8 @@ struct MapExploreView: View {
     @EnvironmentObject private var env: AppEnvironment
     @EnvironmentObject private var location: LocationService
     @StateObject private var vm = MapViewModel()
-    @State private var camera: MapCameraPosition = .region(
-        MKCoordinateRegion(center: .init(latitude: 50.45, longitude: 30.52), span: .init(latitudeDelta: 0.15, longitudeDelta: 0.15)))
+    @State private var camera: MapCameraPosition = .automatic
+    @State private var showCityPicker = false
 
     var body: some View {
         Map(position: $camera, selection: $vm.selected) {
@@ -33,9 +46,24 @@ struct MapExploreView: View {
         }
         .mapStyle(.standard(elevation: .flat))
         .overlay(alignment: .topLeading) {
-            Text("Locked places show an approximate area, not the exact pin.")
-                .font(.caption).padding(8).background(.ultraThinMaterial, in: Capsule()).padding(10)
+            VStack(alignment: .leading, spacing: 8) {
+                Button { showCityPicker = true } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "location.fill").font(.caption).foregroundStyle(Theme.accent)
+                        Text(env.selectedCity?.title ?? String(localized: "Choose a city")).font(.subheadline.weight(.semibold))
+                        Image(systemName: "chevron.down").font(.caption2.weight(.bold)).foregroundStyle(Theme.textMuted)
+                    }
+                    .padding(.horizontal, 12).padding(.vertical, 8)
+                    .background(.ultraThinMaterial, in: Capsule())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text("City: \(env.selectedCity?.title ?? "")"))
+                .accessibilityHint(Text("Choose a different city"))
+                Text("Locked places show an approximate area, not the exact pin.")
+                    .font(.caption).padding(8).background(.ultraThinMaterial, in: Capsule())
+            }.padding(10)
         }
+        .sheet(isPresented: $showCityPicker) { CityPickerView() }
         .overlay(alignment: .bottomTrailing) {
             Button { Task { await centerOnUser() } } label: {
                 Image(systemName: "location.fill").padding(12).background(.ultraThinMaterial, in: Circle())
@@ -48,7 +76,13 @@ struct MapExploreView: View {
             }.presentationDetents([.large])
         }
         .navigationTitle("Map")
-        .task { await vm.load(env); env.analytics.track(.mapOpened) }
+        .task(id: env.selectedCityId) {
+            await vm.load(env, cityId: env.selectedCityId)
+            if let r = vm.region(for: env.selectedCity) {
+                withAnimation(.easeInOut(duration: 0.5)) { camera = .region(r) }
+            }
+            env.analytics.track(.mapOpened)
+        }
     }
 
     private func centerOnUser() async {
