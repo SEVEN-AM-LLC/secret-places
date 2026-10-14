@@ -136,7 +136,7 @@ struct EventCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             ZStack(alignment: .topLeading) {
-                RemoteImage(url: event.posterUrl, height: 170)
+                EventArt(event: event, height: 170)
                 if event.featured {
                     Text("Featured").font(.caption2.weight(.bold))
                         .padding(.horizontal, 9).padding(.vertical, 5)
@@ -165,6 +165,43 @@ struct EventCard: View {
     }
 }
 
+/// Our own artwork for an event — date, kind and time — instead of the organiser's poster,
+/// which we don't have the rights to republish.
+struct EventArt: View {
+    let event: EventItem
+    var height: CGFloat
+
+    var body: some View {
+        ZStack(alignment: .bottomLeading) {
+            LinearGradient(colors: [Theme.surface2, Theme.surface], startPoint: .topLeading, endPoint: .bottomTrailing)
+            Image(systemName: EventKind.icon(event.kind))
+                .font(.system(size: height * 0.62, weight: .ultraLight))
+                .foregroundStyle(Theme.accent.opacity(0.13))
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                .offset(x: height * 0.08, y: -height * 0.06)
+                .clipped()
+            HStack(alignment: .firstTextBaseline, spacing: 10) {
+                Text(event.startsAt, format: .dateTime.day())
+                    .font(.system(size: height * 0.38, weight: .bold, design: .rounded))
+                    .foregroundStyle(Theme.accent)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(event.startsAt, format: .dateTime.month(.wide)).font(.headline).textCase(.uppercase)
+                    Text(event.startsAt, format: .dateTime.weekday(.wide))
+                        .font(.subheadline).foregroundStyle(Theme.textMuted)
+                    Label(EventKind.label(event.kind), systemImage: EventKind.icon(event.kind))
+                        .font(.caption.weight(.semibold)).foregroundStyle(Theme.accent).padding(.top, 2)
+                }
+                .foregroundStyle(Theme.text)
+            }
+            .padding(16)
+        }
+        .frame(height: height)
+        .frame(maxWidth: .infinity)
+        .clipped()
+        .accessibilityElement(children: .combine)
+    }
+}
+
 // MARK: - Event detail
 
 struct EventDetailView: View {
@@ -175,7 +212,7 @@ struct EventDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                RemoteImage(url: event.posterUrl, height: 260)
+                EventArt(event: event, height: 220)
                     .clipShape(RoundedRectangle(cornerRadius: Theme.corner))
                     .padding(.horizontal, 14)
 
@@ -183,10 +220,6 @@ struct EventDetailView: View {
                     Text(event.dateLabel).font(.subheadline.weight(.semibold)).foregroundStyle(Theme.accent)
                     Text(event.title).font(.title2.bold()).foregroundStyle(Theme.text)
                     PriceTag(label: event.priceLabel, isFree: event.isFree)
-
-                    if let desc = event.description, !desc.isEmpty {
-                        Text(desc).font(.body).foregroundStyle(Theme.textMuted)
-                    }
 
                     if !event.lineup.isEmpty {
                         SectionHeader(title: "Lineup").padding(.top, 6)

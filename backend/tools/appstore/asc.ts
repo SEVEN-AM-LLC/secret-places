@@ -22,7 +22,7 @@ export async function api(method: string, path: string, body?: unknown): Promise
     if (r.status === 429 && attempt < 5) { await new Promise((s) => setTimeout(s, 2000 * (attempt + 1))); continue; }
     const text = await r.text();
     const json = text ? JSON.parse(text) : {};
-    if (!r.ok) throw new Error(`${method} ${path} -> ${r.status}: ${JSON.stringify(json.errors ?? json).slice(0, 600)}`);
+    if (!r.ok) throw new Error(`${method} ${path} -> ${r.status}: ${JSON.stringify(json.errors ?? json).slice(0, 8000)}`);
     return json;
   }
 }
