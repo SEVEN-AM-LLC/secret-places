@@ -14,7 +14,8 @@ between databases. Each city with paid places gets a pass product id
 com.secretplaces.city.<slug>.
 
 Usage:
-  python3 backend/tools/world_import.py OUT.sql [city-slug ...]   # default: all CITIES
+  python3 backend/tools/world_import.py OUT.sql [city-slug ...]          # default: all CITIES
+  python3 backend/tools/world_import.py --draft OUT.sql [city-slug ...]  # EUROPE_2 as drafts
 Data © OpenStreetMap contributors (ODbL).
 """
 import hashlib, json, re, sys, time, unicodedata, urllib.parse, urllib.request
@@ -45,6 +46,34 @@ CITIES = [
     ("turkiye", "Türkiye", "🇹🇷", "istanbul", "Istanbul", 41.0082, 28.9784),
     ("united-kingdom", "United Kingdom", "🇬🇧", "london", "London", 51.5074, -0.1278),
     ("georgia", "Georgia", "🇬🇪", "tbilisi", "Tbilisi", 41.7151, 44.8271),
+]
+
+# Second wave — imported as drafts until their city passes are approved (--draft).
+EUROPE_2 = [
+    ("austria", "Austria", "🇦🇹", "vienna", "Vienna", 48.2082, 16.3738),
+    ("hungary", "Hungary", "🇭🇺", "budapest", "Budapest", 47.4979, 19.0402),
+    ("poland", "Poland", "🇵🇱", "warsaw", "Warsaw", 52.2297, 21.0122),
+    ("poland", "Poland", "🇵🇱", "krakow", "Kraków", 50.0647, 19.9450),
+    ("denmark", "Denmark", "🇩🇰", "copenhagen", "Copenhagen", 55.6761, 12.5683),
+    ("sweden", "Sweden", "🇸🇪", "stockholm", "Stockholm", 59.3293, 18.0686),
+    ("spain", "Spain", "🇪🇸", "madrid", "Madrid", 40.4168, -3.7038),
+    ("germany", "Germany", "🇩🇪", "munich", "Munich", 48.1351, 11.5820),
+    ("italy", "Italy", "🇮🇹", "milan", "Milan", 45.4642, 9.1900),
+    ("greece", "Greece", "🇬🇷", "athens", "Athens", 37.9838, 23.7275),
+    ("ireland", "Ireland", "🇮🇪", "dublin", "Dublin", 53.3498, -6.2603),
+    ("united-kingdom", "United Kingdom", "🇬🇧", "edinburgh", "Edinburgh", 55.9533, -3.1883),
+    ("belgium", "Belgium", "🇧🇪", "brussels", "Brussels", 50.8503, 4.3517),
+    ("portugal", "Portugal", "🇵🇹", "porto", "Porto", 41.1579, -8.6291),
+    ("switzerland", "Switzerland", "🇨🇭", "zurich", "Zürich", 47.3769, 8.5417),
+    ("norway", "Norway", "🇳🇴", "oslo", "Oslo", 59.9139, 10.7522),
+    ("estonia", "Estonia", "🇪🇪", "tallinn", "Tallinn", 59.4370, 24.7536),
+    ("latvia", "Latvia", "🇱🇻", "riga", "Riga", 56.9496, 24.1052),
+    ("lithuania", "Lithuania", "🇱🇹", "vilnius", "Vilnius", 54.6872, 25.2797),
+    ("italy", "Italy", "🇮🇹", "naples", "Naples", 40.8518, 14.2681),
+    ("italy", "Italy", "🇮🇹", "florence", "Florence", 43.7696, 11.2558),
+    ("spain", "Spain", "🇪🇸", "seville", "Seville", 37.3891, -5.9845),
+    ("spain", "Spain", "🇪🇸", "valencia", "Valencia", 39.4699, -0.3763),
+    ("germany", "Germany", "🇩🇪", "hamburg", "Hamburg", 53.5511, 9.9937),
 ]
 
 # kind -> (category slug, cap per city)
@@ -122,33 +151,42 @@ def esc(s):
     return s.replace("'", "''") if s else s
 
 
-def overpass(lat: float, lng: float) -> list[dict]:
-    r = f"(around:{RADIUS},{lat},{lng})"
-    q = f"""[out:json][timeout:90];(
-      node["tourism"="viewpoint"]["name"]{r};
-      node["amenity"="bar"]["name"]{r};
-      node["amenity"="nightclub"]["name"]{r};
-      node["rooftop"="yes"]["name"]{r};
-      node["amenity"="cafe"]["cuisine"~"coffee"]["name"]{r};
-      node["tourism"="artwork"]["artwork_type"="mural"]["name"]{r};
-      node["historic"]["name"]["wikidata"]{r};
-      node["leisure"="garden"]["name"]{r};
-      node["tourism"="attraction"]["name"]["wikidata"]{r};
-    );out body;"""
+SELECTORS = [  # one light query each; a single combined query times out on big cities
+    'node["tourism"="viewpoint"]["name"]', 'node["amenity"="bar"]["name"]', 'node["amenity"="nightclub"]["name"]',
+    'node["rooftop"="yes"]["name"]', 'node["amenity"="cafe"]["cuisine"~"coffee"]["name"]',
+    'node["tourism"="artwork"]["artwork_type"="mural"]["name"]', 'node["historic"]["name"]["wikidata"]',
+    'node["leisure"="garden"]["name"]', 'node["tourism"="attraction"]["name"]["wikidata"]',
+]
+
+
+def overpass_one(sel: str, lat: float, lng: float) -> list[dict] | None:
+    q = f"[out:json][timeout:60];{sel}(around:{RADIUS},{lat},{lng});out body 400;"
     data = urllib.parse.urlencode({"data": q}).encode()
-    for attempt in range(3):
+    for attempt in range(4):
         for m in MIRRORS:
             try:
                 req = urllib.request.Request(m, data=data, headers={"User-Agent": UA})
-                with urllib.request.urlopen(req, timeout=120) as resp:
-                    els = json.loads(resp.read()).get("elements", [])
-                if els:
-                    return [e for e in els if e.get("tags", {}).get("name") and "lat" in e]
+                with urllib.request.urlopen(req, timeout=75) as resp:
+                    return json.loads(resp.read()).get("elements", [])
             except Exception as ex:
-                print(f"  mirror {m.split('/')[2]} failed: {str(ex)[:80]}", file=sys.stderr)
-                time.sleep(3)
-        time.sleep(15 * (attempt + 1))
-    return []
+                print(f"  {m.split('/')[2]}: {str(ex)[:60]}", file=sys.stderr)
+                time.sleep(2)
+        time.sleep(10 * (attempt + 1))
+    return None
+
+
+def overpass(lat: float, lng: float) -> list[dict]:
+    out, failed = [], 0
+    for sel in SELECTORS:
+        els = overpass_one(sel, lat, lng)
+        if els is None:
+            failed += 1
+            continue
+        out += [e for e in els if e.get("tags", {}).get("name") and "lat" in e]
+        time.sleep(1)
+    if failed > len(SELECTORS) // 2:   # mostly failed: report nothing rather than a lopsided city
+        return []
+    return out
 
 
 def kind_of(t: dict) -> str | None:
@@ -200,6 +238,9 @@ def pick(elements: list[dict], city_slug: str) -> list[tuple[str, dict]]:
     return out
 
 
+STATUS = "published"
+
+
 def city_sql(c) -> tuple[list[str], int, int]:
     country_slug, country_name, flag, cslug, ctitle, clat, clng = c
     picked = pick(overpass(clat, clng), cslug)
@@ -240,7 +281,7 @@ def city_sql(c) -> tuple[list[str], int, int]:
         "(case when v.oh is null then null else jsonb_build_object('raw',v.oh) end),"
         "'From the nearest stop it''s a short walk — look for the entrance, not a sign.',"
         "'https://maps.apple.com/?ll='||v.lat||','||v.lng,'https://www.google.com/maps/search/?api=1&query='||v.lat||','||v.lng,"
-        f"{country},{city},(select id from public.categories where slug=v.cat),v.access,v.price,null,'published',v.featured,v.editors,"
+        f"{country},{city},(select id from public.categories where slug=v.cat),v.access,v.price,null,'{STATUS}',v.featured,v.editors,"
         "15,'walk',v.best,'all year',v.dur,'medium',2,'good','openstreetmap',v.sref\nfrom (values\n" + ",\n".join(vals) +
         "\n) v(slug,tt,td,ft,fd,lat,lng,alat,alng,addr,biz,ws,oh,cat,access,price,featured,editors,best,dur,sref)\non conflict (slug) do nothing;")
     if paid_n:
@@ -250,8 +291,11 @@ def city_sql(c) -> tuple[list[str], int, int]:
 
 
 if __name__ == "__main__":
-    out_path = sys.argv[1] if len(sys.argv) > 1 else "world_seed.sql"
-    only = set(sys.argv[2:])
+    args = sys.argv[1:]
+    if "--draft" in args:          # second-wave cities: hidden until their passes are approved
+        args.remove("--draft"); STATUS = "draft"; CITIES = EUROPE_2
+    out_path = args[0] if args else "world_seed.sql"
+    only = set(args[1:])
     lines = ["-- Generated by backend/tools/world_import.py — real places from OpenStreetMap (ODbL), © OpenStreetMap contributors."]
     for c in CITIES:
         if only and c[3] not in only:
