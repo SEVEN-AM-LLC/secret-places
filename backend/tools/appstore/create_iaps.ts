@@ -46,13 +46,10 @@ async function usdPricePoint(iapId: string, price: string): Promise<string> {
 
 for (const p of products) {
   try {
-    let id = existing.get(p.productId);
-    if (!id) {
-      id = (await api("POST", "/v2/inAppPurchases", { data: { type: "inAppPurchases",
+    const id: string = existing.get(p.productId) ?? (await api("POST", "/v2/inAppPurchases", { data: { type: "inAppPurchases",
         attributes: { name: p.ref, productId: p.productId, inAppPurchaseType: "NON_CONSUMABLE", familySharable: false,
           reviewNote: "Unlocks the exact location and full guide for this item in the app. Sign in with Apple first, then tap Unlock." },
         relationships: { app: { data: { type: "apps", id: APP } } } } })).data.id;
-    }
     const locs = await api("GET", `/v2/inAppPurchases/${id}/inAppPurchaseLocalizations`);
     if (!locs.data.some((l: any) => l.attributes.locale === "en-US")) {
       await api("POST", "/v1/inAppPurchaseLocalizations", { data: { type: "inAppPurchaseLocalizations",
