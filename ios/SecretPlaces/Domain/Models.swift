@@ -173,6 +173,10 @@ struct PlaceDetails: Codable, Equatable, Identifiable, Sendable {
         guard let la = exactLat, let ln = exactLng else { return nil }
         return CLLocationCoordinate2D(latitude: la, longitude: ln)
     }
+    var approxCoordinate: CLLocationCoordinate2D? {
+        guard let la = approxLat, let ln = approxLng else { return nil }
+        return CLLocationCoordinate2D(latitude: la, longitude: ln)
+    }
     var priceLabel: String {
         if accessType == .free || (isFreeNow ?? false) { return String(localized: "Free") }
         return String(format: "$%.2f", Double(priceCents) / 100.0)

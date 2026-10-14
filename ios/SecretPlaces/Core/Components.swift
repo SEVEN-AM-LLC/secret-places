@@ -85,7 +85,8 @@ struct PlaceCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             ZStack(alignment: .topTrailing) {
-                RemoteImage(url: place.heroImageUrl, height: 150)
+                PlaceHeroImage(photoURL: place.heroImageUrl, coordinate: place.approxCoordinate,
+                               locked: !place.isFreeExperience, height: 150)
                 HStack {
                     if !place.isFreeExperience { LockBadge() }
                     if isSaved { Image(systemName: "bookmark.fill").font(.caption2).padding(6).background(.ultraThinMaterial, in: Circle()).foregroundStyle(Theme.accent) }
