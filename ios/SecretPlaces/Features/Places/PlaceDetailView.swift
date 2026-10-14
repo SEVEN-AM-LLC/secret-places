@@ -17,7 +17,7 @@ final class PlaceDetailViewModel: ObservableObject {
             state = .loaded(details)
             if details.isUnlocked { await DiskCache.shared.save(details, key: cacheKey) }
             if let pid = details.productId, details.accessType == .paid {
-                priceLabel = await purchases.priceLabel(for: pid)
+                priceLabel = await purchases.priceLabel(for: pid, fallback: details.priceLabel)
             }
         } catch let e as AppError {
             if e == .offline, let cached = await DiskCache.shared.load(PlaceDetails.self, key: cacheKey) {
