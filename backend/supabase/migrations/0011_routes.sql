@@ -40,6 +40,12 @@ create policy routes_read on public.routes for select using (status = 'published
 grant select on public.routes to anon, authenticated;
 -- (no direct select policy/grant on route_stops — access only via get_route_details)
 
+-- defined before routes_public, which calls it
+create or replace function public.route_stop_count(p_route_id uuid)
+returns int language sql stable security definer set search_path = public as $$
+  select count(*)::int from public.route_stops where route_id = p_route_id;
+$$;
+
 create view public.routes_public with (security_invoker = true) as
 select r.id, r.slug, r.title, r.summary, r.city_id, r.kind, r.cover_url,
   r.is_free, r.price_cents, r.currency, r.product_id, r.distance_m, r.duration_min,
@@ -74,11 +80,6 @@ returns boolean language sql stable security definer set search_path = public as
     or (p_user is not null and exists (
       select 1 from public.user_entitlements e
       where e.user_id = p_user and e.route_id = p_route_id and e.revoked_at is null));
-$$;
-
-create or replace function public.route_stop_count(p_route_id uuid)
-returns int language sql stable security definer set search_path = public as $$
-  select count(*)::int from public.route_stops where route_id = p_route_id;
 $$;
 
 -- Full route with ordered stops. Stops reveal exact data only when the route

@@ -5,7 +5,7 @@
 // Auth: ASC API key AuthKey_<KEY_ID>.p8 in ~/.appstoreconnect/private_keys (see asc.ts).
 import { api } from "./asc.ts";
 const APP = "6822694406";
-const SB = "https://qovfroivqskzelpuxfwp.supabase.co/rest/v1";
+const SB = "https://api.secretplaces.7am.agency/rest/v1";
 const anon = Deno.env.get("SUPABASE_ANON_KEY") ?? (() => { throw new Error("set SUPABASE_ANON_KEY (publishable key from ios/SecretPlaces/Core/Config.swift)"); })();
 const sb = (q: string) => fetch(`${SB}/${q}`, { headers: { apikey: anon } }).then((r) => r.json());
 const only = Deno.args[0]; // optional productId filter for a dry single run

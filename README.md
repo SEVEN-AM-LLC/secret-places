@@ -8,7 +8,7 @@ deliberately hides everything that would reveal the exact place — and that hid
 - **iOS**: Swift · SwiftUI · iOS 18+ · Swift Concurrency · MapKit · CoreLocation · StoreKit 2 · Sign in with Apple
 - **Backend**: Supabase (Postgres + PostGIS) · RLS on all user data · Edge Functions for the trust boundary
 
-The backend is **live** (project `qovfroivqskzelpuxfwp`) and the app runs on the iOS 18/26
+The backend is **self-hosted on OVH** (`https://api.secretplaces.7am.agency`, see `infra/ovh/README.md`) and the app runs on the iOS 18/26
 simulator against it. See the final report and `docs/SECURITY.md`.
 
 ---

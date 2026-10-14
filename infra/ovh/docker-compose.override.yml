@@ -1,0 +1,26 @@
+# Secret Places — isolation on the shared 7am-vps-clients host:
+# nothing listens on a public interface; nginx (CloudPanel) proxies HTTPS -> 127.0.0.1:61000.
+services:
+  api-gw:
+    ports: !override
+      - "127.0.0.1:${API_GW_HTTP_PORT}:8000/tcp"
+  supavisor:
+    ports: !override
+      - "127.0.0.1:61432:5432"
+      - "127.0.0.1:61543:6543"
+  auth:
+    environment:
+      GOTRUE_EXTERNAL_APPLE_ENABLED: "true"
+      GOTRUE_EXTERNAL_APPLE_CLIENT_ID: com.secretplaces.app
+      GOTRUE_EXTERNAL_APPLE_SECRET: native-id-token-flow-only
+      GOTRUE_EXTERNAL_APPLE_REDIRECT_URI: ${API_EXTERNAL_URL}/callback
+  functions:
+    environment:
+      APPLE_ROOT_CERTS: ${APPLE_ROOT_CERTS}
+      APPLE_APP_ID: ${APPLE_APP_ID}
+      APPLE_BUNDLE_ID: ${APPLE_BUNDLE_ID}
+      SYNC_SECRET: ${SYNC_SECRET}
+  studio:
+    # Not routed publicly; reach it with: ssh -L 61300:127.0.0.1:61300 ubuntu@51.195.148.252
+    ports:
+      - "127.0.0.1:61300:3000"

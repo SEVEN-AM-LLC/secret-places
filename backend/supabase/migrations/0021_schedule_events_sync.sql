@@ -28,7 +28,7 @@ end $$;
 
 select cron.schedule('sync-events-6h', '15 */6 * * *', $job$
   select net.http_post(
-    url := 'https://qovfroivqskzelpuxfwp.supabase.co/functions/v1/sync-events',
+    url := 'http://api-gw:8000/functions/v1/sync-events'  -- self-hosted: gateway on the docker network,
     headers := jsonb_build_object(
       'Content-Type','application/json',
       'Authorization','Bearer ' || (select decrypted_secret from vault.decrypted_secrets where name='events_sync_anon'),

@@ -13,7 +13,7 @@ from ua, (values
   ('vinnytsia','Vinnytsia',49.2331,28.4682),
   ('ivano-frankivsk','Ivano-Frankivsk',48.9226,24.7111)
 ) as c(slug,title,lat,lng)
-on conflict (slug) do nothing;
+on conflict (country_id, slug) do nothing;
 
 insert into public.event_sources (provider, label, kind, city_slug, config)
 select 'jsonld', 'Concert.ua — ' || initcap(c.slug), 'concert', c.slug,

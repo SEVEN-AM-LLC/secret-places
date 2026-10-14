@@ -14,4 +14,4 @@ seed_admin.sql                -- (not present here) demo moderation rows — n/a
 
 Note: 0002 depends on functions from 0003 (RLS policy calls can_rate_place), so apply 0003 before 0002 — this mirrors the deployed order (see version timestamps).
 
-These were applied to the live project `qovfroivqskzelpuxfwp` via the Supabase MCP and verified (see docs/SECURITY.md).
+Originally applied to the Supabase cloud project; now replayed onto the self-hosted stack on OVH (see infra/ovh/README.md).
