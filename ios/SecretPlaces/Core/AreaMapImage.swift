@@ -10,6 +10,8 @@ struct AreaMapImage: View {
     let coordinate: CLLocationCoordinate2D?
     var height: CGFloat = 150
     var locked: Bool = false
+    /// Edge length of the shown region; widen it to fit several stops.
+    var spanMeters: CLLocationDistance = 1600
 
     @State private var snapshot: UIImage?
     @Environment(\.displayScale) private var displayScale
@@ -60,11 +62,11 @@ struct AreaMapImage: View {
     private func load(width: CGFloat) async {
         guard let coordinate, width > 1 else { return }
         let size = CGSize(width: width, height: height)
-        let key = MapSnapshotCache.key(coordinate, size, displayScale)
+        let key = MapSnapshotCache.key(coordinate, size, displayScale, spanMeters)
         if let cached = MapSnapshotCache.shared.object(forKey: key) { snapshot = cached; return }
 
         let options = MKMapSnapshotter.Options()
-        options.region = MKCoordinateRegion(center: coordinate, latitudinalMeters: 1600, longitudinalMeters: 1600)
+        options.region = MKCoordinateRegion(center: coordinate, latitudinalMeters: spanMeters, longitudinalMeters: spanMeters)
         options.size = size
         options.scale = displayScale
         options.traitCollection = UITraitCollection(userInterfaceStyle: .dark)
@@ -87,8 +89,8 @@ enum MapSnapshotCache {
     nonisolated(unsafe) static let shared: NSCache<NSString, UIImage> = {
         let c = NSCache<NSString, UIImage>(); c.countLimit = 120; return c
     }()
-    static func key(_ c: CLLocationCoordinate2D, _ s: CGSize, _ scale: CGFloat) -> NSString {
-        String(format: "%.5f,%.5f,%.0fx%.0f@%.0f", c.latitude, c.longitude, s.width, s.height, scale) as NSString
+    static func key(_ c: CLLocationCoordinate2D, _ s: CGSize, _ scale: CGFloat, _ span: CLLocationDistance) -> NSString {
+        String(format: "%.5f,%.5f,%.0fx%.0f@%.0f/%.0f", c.latitude, c.longitude, s.width, s.height, scale, span) as NSString
     }
 }
 

@@ -57,10 +57,41 @@ struct RouteDetailView: View {
         _vm = StateObject(wrappedValue: RouteDetailViewModel(slug: slug))
     }
 
+    /// Cover photo if the route has one; otherwise a map of the area its stops span
+    /// (approximate coordinates only, so nothing is revealed before purchase).
+    @ViewBuilder private var hero: some View {
+        if let cover = vm.state.value?.coverUrl ?? summary?.coverUrl, !cover.isEmpty {
+            RemoteImage(url: cover, height: 240)
+        } else {
+            let route = vm.state.value
+            let coords = (route?.stops ?? []).compactMap { s -> CLLocationCoordinate2D? in
+                guard let la = s.approxLat, let ln = s.approxLng else { return nil }
+                return CLLocationCoordinate2D(latitude: la, longitude: ln)
+            }
+            AreaMapImage(coordinate: Self.center(of: coords), height: 240,
+                         locked: !(route.map { $0.owned || $0.isFree } ?? true),
+                         spanMeters: Self.span(of: coords))
+        }
+    }
+
+    private static func center(of c: [CLLocationCoordinate2D]) -> CLLocationCoordinate2D? {
+        guard !c.isEmpty else { return nil }
+        return CLLocationCoordinate2D(latitude: c.map(\.latitude).reduce(0, +) / Double(c.count),
+                                      longitude: c.map(\.longitude).reduce(0, +) / Double(c.count))
+    }
+
+    private static func span(of c: [CLLocationCoordinate2D]) -> CLLocationDistance {
+        guard let minLat = c.map(\.latitude).min(), let maxLat = c.map(\.latitude).max(),
+              let minLng = c.map(\.longitude).min(), let maxLng = c.map(\.longitude).max() else { return 1600 }
+        let dLat = (maxLat - minLat) * 111_000
+        let dLng = (maxLng - minLng) * 111_000 * cos(minLat * .pi / 180)
+        return max(1600, max(dLat, dLng) * 1.6)
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                RemoteImage(url: vm.state.value?.coverUrl ?? summary?.coverUrl, height: 240)
+                hero
                     .clipShape(RoundedRectangle(cornerRadius: Theme.corner))
                     .padding(.horizontal, 14)
 
@@ -165,7 +196,7 @@ struct RouteDetailView: View {
                     }
                     .frame(maxWidth: .infinity).padding(.vertical, 14)
                 }
-                .buttonStyle(.borderedProminent).tint(Theme.accent)
+                .buttonStyle(.borderedProminent).tint(Theme.accent).foregroundStyle(.black)
                 .disabled(purchases.purchasingProductId != nil)
             }
         }

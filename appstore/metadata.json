@@ -1,0 +1,28 @@
+{
+  "app": {
+    "primaryCategory": "TRAVEL",
+    "secondaryCategory": "LIFESTYLE",
+    "copyright": "2026 SEVEN AM LLC",
+    "supportUrl": "https://secretplaces.7am.agency/support/",
+    "marketingUrl": "https://secretplaces.7am.agency/",
+    "privacyPolicyUrl": "https://secretplaces.7am.agency/privacy/"
+  },
+  "localizations": {
+    "en-US": {
+      "name": "Secret Places: Hidden Spots",
+      "subtitle": "Hidden bars, views & nights",
+      "promotionalText": "Unmarked bars, quiet viewpoints and underground nights, curated by locals. Browse free; unlock the exact spot when you're ready to go.",
+      "keywords": "hidden,secret,speakeasy,bar,viewpoint,rooftop,underground,techno,club,local,guide,crawl,kyiv,city",
+      "description": "Every city keeps its best places to itself. Secret Places is where locals share them.\n\nFind the bar behind an unmarked door, the viewpoint people walk past, the courtyard café with no sign and the warehouse night that only runs until sunrise. Every place is hand-picked, and the best ones stay secret until you choose to go.\n\nBROWSE FREELY\n• See what each place is like, the best time to go, how long to stay and how busy it gets.\n• Locked places show only an approximate area on the map, so a secret stays a secret.\n• Plenty of places are free, with the full guide included.\n\nUNLOCK THE EXACT SPOT\n• One tap reveals the exact location, walking directions, insider tips and, where there is one, the password at the door.\n• Unlocks are one-time purchases. They are yours to keep and restore on any device.\n\nNIGHT ROUTES\n• Self-guided crawls through a neighbourhood: every unmarked door, in order, with the walk between them.\n\nWHAT'S ON\n• Concerts, theatre, markets and club nights in the cities we cover.\n\nPRIVATE BY DESIGN\n• Browse without an account. Sign in with Apple only when you want to unlock or sync.\n• No ads, no tracking, no selling your data. Location is optional.\n\nStarting in Ukraine, with more cities on the way.",
+      "whatsNew": "First release."
+    },
+    "uk": {
+      "name": "Secret Places: Hidden Spots",
+      "subtitle": "Приховані бари й краєвиди",
+      "promotionalText": "Бари без вивісок, тихі оглядові майданчики й андерграундні вечори, зібрані місцевими. Переглядай безкоштовно, а точне місце відкривай, коли готовий іти.",
+      "keywords": "приховані,секретні,спікізі,бар,краєвид,дах,андерграунд,техно,клуб,гід,маршрут,київ,місто",
+      "description": "Кожне місто тримає найкращі місця для своїх. Secret Places — це місце, де ними діляться місцеві.\n\nЗнайди бар за дверима без вивіски, оглядовий майданчик, повз який усі проходять, кав'ярню у дворику без вивіски й вечірку на складі, що триває до світанку. Кожне місце відібране вручну, а найкращі лишаються секретом, доки ти не вирішиш піти.\n\nПЕРЕГЛЯДАЙ ВІЛЬНО\n• Дізнайся, яке місце, коли краще йти, скільки там бути і наскільки людно.\n• Закриті місця показують на мапі лише приблизний район, тож секрет лишається секретом.\n• Багато місць безкоштовні, разом із повним гідом.\n\nВІДКРИЙ ТОЧНЕ МІСЦЕ\n• Один дотик відкриває точну локацію, маршрут пішки, поради й, якщо є, пароль на вході.\n• Відкриття — разова покупка. Вона лишається з тобою і відновлюється на будь-якому пристрої.\n\nНІЧНІ МАРШРУТИ\n• Самостійні маршрути районом: усі двері без вивісок, по черзі, з дорогою між ними.\n\nАФІША\n• Концерти, театр, маркети й клубні ночі в містах, які ми охоплюємо.\n\nПРИВАТНІСТЬ ЗА ЗАМОВЧУВАННЯМ\n• Переглядай без акаунта. Вхід через Apple — лише коли хочеш відкрити місце чи синхронізувати.\n• Без реклами, без стеження, без продажу даних. Геолокація — за бажанням.\n\nПочинаємо з України, далі — нові міста світу.",
+      "whatsNew": "Перший реліз."
+    }
+  }
+}
