@@ -20,7 +20,7 @@ Usage:
                                                                          # each keeps its city's status (published/draft)
 Data © OpenStreetMap contributors (ODbL).
 """
-import hashlib, json, re, sys, time, unicodedata, urllib.parse, urllib.request
+import hashlib, json, os, re, sys, time, unicodedata, urllib.parse, urllib.request
 
 # Overpass mirrors — EU only. Never use Russian-hosted services.
 MIRRORS = ["https://overpass-api.de/api/interpreter",
@@ -391,7 +391,7 @@ SELECTORS = [  # one light query each; a single combined query times out on big 
 def overpass_one(sel: str, lat: float, lng: float) -> list[dict] | None:
     q = f"[out:json][timeout:60];{sel}(around:{RADIUS},{lat},{lng});out center 400;"
     data = urllib.parse.urlencode({"data": q}).encode()
-    for attempt in range(4):
+    for attempt in range(int(os.environ.get("SP_OVERPASS_ROUNDS", "4"))):
         for m in MIRRORS:
             try:
                 req = urllib.request.Request(m, data=data, headers={"User-Agent": UA})
@@ -400,7 +400,7 @@ def overpass_one(sel: str, lat: float, lng: float) -> list[dict] | None:
             except Exception as ex:
                 print(f"  {m.split('/')[2]}: {str(ex)[:60]}", file=sys.stderr)
                 time.sleep(2)
-        time.sleep(10 * (attempt + 1))
+        time.sleep(5 * (attempt + 1))
     return None
 
 
@@ -493,7 +493,12 @@ KYIV = ("ukraine", "Ukraine", "🇺🇦", "kyiv", "Kyiv", 50.4501, 30.5234)
 
 def city_sql(c) -> tuple[list[str], int, int]:
     country_slug, country_name, flag, cslug, ctitle, clat, clng = c
-    els = overpass(clat, clng)
+    els = None
+    if os.environ.get("SP_PREFER_EXTRACT") == "1":   # server: BBBike first — no dependence on flaky public Overpass
+        import extract
+        els = extract.elements(cslug, ctitle, clat, clng, RADIUS)
+    if not els:
+        els = overpass(clat, clng)
     if not els:   # public Overpass mirrors down — fall back to a BBBike extract (server venv has pyosmium)
         import extract
         els = extract.elements(cslug, ctitle, clat, clng, RADIUS) or []

@@ -1,12 +1,12 @@
 # Nightly place import
 
-`backend/tools/autopilot.py` runs every night on the OVH host and keeps the catalogue growing:
-8 cities per run (oldest first) are re-imported from OpenStreetMap — only new places are added — and
+`backend/tools/autopilot.py` runs on the OVH host back to back (a new run 10 minutes after the last one ends)
+and keeps the catalogue growing: 8 cities per run (never-imported first, then any city older than 7 days) are re-imported from OpenStreetMap — only new places are added — and
 the new places get Commons photos, Wikidata awards and non-repeating teasers. Published cities get their
 new places live; draft cities stay drafts until their city pass is approved.
 
-Data comes from the public Overpass mirrors (EU only); when they are all down, `extract.py` falls back to
-BBBike city extracts filtered locally with pyosmium (venv `/opt/secretplaces-importer/venv`, `pip install osmium`).
+Data comes from BBBike city extracts first (`SP_PREFER_EXTRACT=1`), then the public Overpass mirrors (EU only),
+with BBBike again as the fallback — city extracts filtered locally with pyosmium (venv `/opt/secretplaces-importer/venv`, `pip install osmium`).
 
 Deploy / update:
 

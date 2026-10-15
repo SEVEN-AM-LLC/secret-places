@@ -20,6 +20,7 @@ import db, world_import as w, wikidata_enrich as we, photos_more as pm, teasers 
 STATE = os.environ.get("SP_STATE", os.path.join(os.path.dirname(os.path.abspath(__file__)), "autopilot_state.json"))
 PER_RUN = int(os.environ.get("SP_CITIES_PER_RUN", "8"))
 RECENT = int(os.environ.get("SP_RECENT_DAYS", "2"))
+MIN_AGE = float(os.environ.get("SP_MIN_AGE_DAYS", "7"))   # a city is re-imported at most this often
 
 
 def log(*a):
@@ -48,7 +49,14 @@ def main():
     state = json.load(open(STATE)) if os.path.exists(STATE) else {}
     cities = [w.KYIV] + w.CITIES + w.EUROPE_2 + w.WORLD_3 + w.WORLD_4 + w.WORLD_5 + w.WORLD_6
     priority = {c[3] for c in w.WORLD_6}   # revenue picks jump the queue among never-imported cities
-    queue = sorted(cities, key=lambda c: (state.get(c[3], ""), c[3] not in priority))[:PER_RUN]   # never-run first, then oldest
+    cutoff = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=MIN_AGE)).isoformat()
+    fails = state.setdefault("_failed", {})   # cities whose data source was down: retry after a pause, don't block the queue
+    retry_after = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(hours=6)).isoformat()
+    due = [c for c in cities if state.get(c[3], "") < cutoff and fails.get(c[3], "") < retry_after]
+    queue = sorted(due, key=lambda c: (state.get(c[3], ""), c[3] not in priority))[:PER_RUN]   # never-run first, then oldest
+    if not queue:
+        log("every city imported within the last %g days — nothing to do" % MIN_AGE)
+        return
     before = counts()
     log(f"start: {before}; cities this run: {', '.join(c[4] for c in queue)}")
 
@@ -60,9 +68,12 @@ def main():
                 db.apply("\n".join(sql))
                 log(f"{c[4]}: {n} candidates from OSM ({paid} paid)")
             else:
-                log(f"{c[4]}: Overpass returned nothing — will retry next run")
+                log(f"{c[4]}: no data (Overpass and BBBike) — retry in 6 h")
+                fails[c[3]] = dt.datetime.now(dt.timezone.utc).isoformat()
+                json.dump(state, open(STATE, "w"), indent=1)
                 continue
             state[c[3]] = dt.datetime.now(dt.timezone.utc).isoformat()
+            fails.pop(c[3], None)
             json.dump(state, open(STATE, "w"), indent=1)
         except Exception:
             log(f"{c[4]}: FAILED\n{traceback.format_exc()}")
