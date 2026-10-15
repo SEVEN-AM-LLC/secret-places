@@ -20,6 +20,9 @@ import csv, hashlib, html, io, json, math, re, subprocess, sys, time, urllib.par
 
 sys.path.insert(0, __file__.rsplit("/", 1)[0])
 import world_import as w  # noqa: E402  (city list, Overpass mirrors, helpers)
+import db  # noqa: E402
+
+RECENT_DAYS: int | None = None   # autopilot: only look at places added in the last N days
 
 UA = "SecretPlaces/1.0 (place enrichment; hello@7am.agency)"
 SSH = ["ssh", "ubuntu@51.195.148.252"]
@@ -41,10 +44,9 @@ def get(url: str, data: dict | None = None, tries: int = 4):
 
 
 def db_places() -> list[dict]:
-    sql = ("copy (select p.id, p.source_ref, p.business_name, p.exact_lat, p.exact_lng, p.wikidata, c.slug "
-           "from places p left join cities c on c.id = p.city_id where p.source = 'openstreetmap') to stdout with csv header")
-    out = subprocess.run(SSH + [f'sudo docker exec supabase-db psql -U postgres -c "{sql}"'], capture_output=True, text=True, check=True).stdout
-    return list(csv.DictReader(io.StringIO(out)))
+    recent = f" and p.created_at > now() - interval '{int(RECENT_DAYS)} days'" if RECENT_DAYS else ""
+    return db.rows("select p.id, p.source_ref, p.business_name, p.exact_lat, p.exact_lng, p.wikidata, c.slug "
+                   f"from places p left join cities c on c.id = p.city_id where p.source = 'openstreetmap'{recent}")
 
 
 def osm_wikidata(places: list[dict]) -> dict[str, str]:

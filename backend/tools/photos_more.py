@@ -16,6 +16,9 @@ import csv, io, math, re, subprocess, sys, time, unicodedata, urllib.parse
 
 sys.path.insert(0, __file__.rsplit("/", 1)[0])
 import wikidata_enrich as we  # noqa: E402
+import db  # noqa: E402
+
+RECENT_DAYS: int | None = None   # autopilot: only places added in the last N days
 
 NEARBY_CATS = {"viewpoints", "walks", "culture", "architecture", "nature", "beaches", "underground"}
 STOP = {"the", "and", "park", "parc", "parque", "garden", "gardens", "jardin", "jardim", "view", "viewpoint", "miradouro",
@@ -25,9 +28,7 @@ STOP = {"the", "and", "park", "parc", "parque", "garden", "gardens", "jardin", "
 
 
 def sql_rows(sql: str) -> list[dict]:
-    out = subprocess.run(we.SSH + [f'sudo docker exec supabase-db psql -U postgres -c "copy ({sql}) to stdout with csv header"'],
-                         capture_output=True, text=True, check=True).stdout
-    return list(csv.DictReader(io.StringIO(out)))
+    return db.rows(sql)
 
 
 def words(s: str) -> set[str]:
@@ -128,7 +129,8 @@ def dist_km(a, b, c, d):
 def main(out_path: str):
     places = sql_rows("select p.id, p.source_ref, p.business_name, p.exact_lat, p.exact_lng, p.wikidata, cat.slug cat "
                       "from places p left join categories cat on cat.id = p.primary_category_id "
-                      "where p.source = 'openstreetmap' and p.photo_url is null and p.hero_image_url is null")
+                      "where p.source = 'openstreetmap' and p.photo_url is null and p.hero_image_url is null"
+                      + (f" and p.created_at > now() - interval '{int(RECENT_DAYS)} days'" if RECENT_DAYS else ""))
     cities = sql_rows("select id, title, lat, lng from cities where cover_photo_url is null and lat is not null")
     print(f"{len(places)} places without a photo, {len(cities)} cities without a cover", file=sys.stderr)
     for c in sql_rows("select title from cities"):
