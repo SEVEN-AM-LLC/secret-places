@@ -100,7 +100,12 @@ struct PlaceTeaser: Codable, Equatable, Hashable, Identifiable, Sendable {
     let ratingsCount: Int
     let featured: Bool
     let editorsChoice: Bool
+    /// Wikimedia Commons photo — only with its credit line (server hides it while the place is locked).
+    var photoUrl: String? = nil
+    var photoCredit: String? = nil
+    var awards: [String]? = nil
 
+    var displayPhoto: (url: String, credit: String?)? { PlacePhoto.pick(hero: heroImageUrl, commons: photoUrl, credit: photoCredit) }
     var isFreeExperience: Bool { accessType == .free || accessType == .promotionalFree || (isFreeNow ?? false) }
     var approxCoordinate: CLLocationCoordinate2D? {
         guard let la = approxLat, let ln = approxLng else { return nil }
@@ -150,6 +155,9 @@ struct PlaceDetails: Codable, Equatable, Identifiable, Sendable {
     let images: [PlaceImage]
     let tags: [String]
     let hasEntryPassword: Bool?
+    var photoUrl: String? = nil
+    var photoCredit: String? = nil
+    var awards: [String]? = nil
 
     // SENSITIVE — only when unlocked
     let fullTitle: String?
@@ -172,6 +180,7 @@ struct PlaceDetails: Codable, Equatable, Identifiable, Sendable {
     let unlockScope: String?
     let cityTitle: String?
 
+    var displayPhoto: (url: String, credit: String?)? { PlacePhoto.pick(hero: heroImageUrl, commons: photoUrl, credit: photoCredit) }
     var isUnlocked: Bool { !locked }
     var unlocksWithCityPass: Bool { unlockScope == "city" }
     var requiresPassword: Bool { hasEntryPassword ?? false }
@@ -188,6 +197,38 @@ struct PlaceDetails: Codable, Equatable, Identifiable, Sendable {
         return String(format: "$%.2f", Double(priceCents) / 100.0)
     }
     var displayTitle: String { isUnlocked ? (fullTitle ?? teaserTitle) : teaserTitle }
+}
+
+enum PlacePhoto {
+    /// Our own (Google-matched) photo first, else a Commons photo — which is never shown without its credit.
+    static func pick(hero: String?, commons: String?, credit: String?) -> (url: String, credit: String?)? {
+        if let hero, !hero.isEmpty { return (hero, nil) }
+        if let commons, !commons.isEmpty, let credit, !credit.isEmpty { return (commons, credit) }
+        return nil
+    }
+
+    /// "Photo: Jane Doe · CC BY-SA 4.0 · Wikimedia Commons" → "© Jane Doe · CC BY-SA 4.0" for small cards,
+    /// so the licence is never the part that gets truncated.
+    static func compact(_ credit: String?) -> String? {
+        guard let credit else { return nil }
+        let parts = credit.replacingOccurrences(of: "Photo: ", with: "").components(separatedBy: " · ")
+        guard parts.count >= 2 else { return credit }
+        let licence = parts[1] == "Public domain" ? "PD" : parts[1]
+        return "© \(parts[0].prefix(18)) · \(licence)"
+    }
+}
+
+/// Recognition from Wikidata (Michelin Guide etc.).
+enum PlaceAward: String {
+    case michelinStar = "michelin_star", bibGourmand = "bib_gourmand", worlds50Best = "worlds_50_best"
+    var label: String {
+        switch self {
+        case .michelinStar: return String(localized: "Michelin Guide")
+        case .bibGourmand: return String(localized: "Bib Gourmand")
+        case .worlds50Best: return String(localized: "50 Best")
+        }
+    }
+    static func labels(_ raw: [String]?) -> [String] { (raw ?? []).compactMap { PlaceAward(rawValue: $0)?.label } }
 }
 
 /// A nearby result (from nearby_places RPC).

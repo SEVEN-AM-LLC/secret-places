@@ -104,10 +104,12 @@ struct PlaceHeroImage: View {
     let locked: Bool
     var height: CGFloat = 150
     var credit: Bool = false
+    /// Attribution that must travel with the photo (Wikimedia Commons).
+    var creditText: String? = nil
 
     var body: some View {
         if !locked, let photoURL, !photoURL.isEmpty {
-            RemoteImage(url: photoURL, height: height, credit: credit)
+            RemoteImage(url: photoURL, height: height, credit: credit, creditText: creditText)
         } else {
             AreaMapImage(coordinate: coordinate, height: height, locked: locked)
         }

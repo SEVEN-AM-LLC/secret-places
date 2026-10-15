@@ -141,6 +141,8 @@ struct PrivacyView: View {
                 Divider().padding(.vertical, 6)
                 Text("Place data © OpenStreetMap contributors, available under the Open Database License (ODbL).")
                     .font(.footnote)
+                Text("Photos marked © come from Wikimedia Commons; each shows its author and licence. Awards are taken from Wikidata — check the current guide before booking.")
+                    .font(.footnote)
             }.foregroundStyle(Theme.textMuted).padding()
         }.background(Theme.bg).navigationTitle("Privacy")
     }

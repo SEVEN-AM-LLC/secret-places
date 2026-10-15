@@ -8,6 +8,8 @@ struct RemoteImage: View {
     var height: CGFloat = 180
     /// Show the photo source credit (required for Google Places photos).
     var credit: Bool = false
+    /// Licence attribution shown on the image whenever it is set (Commons photos), even on small cards.
+    var creditText: String? = nil
 
     private var placeholder: some View {
         LinearGradient(colors: [Theme.surface2, Theme.surface], startPoint: .topLeading, endPoint: .bottomTrailing)
@@ -16,6 +18,7 @@ struct RemoteImage: View {
 
     /// A remote photo we cached from a provider that requires attribution.
     private var creditLabel: String? {
+        if let creditText { return creditText }
         guard credit, let s = url else { return nil }
         if s.contains("googleusercontent.com") || s.contains("googleapis.com") { return "Photo · Google" }
         return nil
@@ -44,6 +47,7 @@ struct RemoteImage: View {
             .overlay(alignment: .bottomTrailing) {
                 if let label = creditLabel {
                     Text(label)
+                        .lineLimit(1)
                         .font(.caption2).foregroundStyle(.white.opacity(0.9))
                         .padding(.horizontal, 7).padding(.vertical, 3)
                         .background(.black.opacity(0.45), in: Capsule())
@@ -52,6 +56,24 @@ struct RemoteImage: View {
             }
         }
         .frame(height: height)
+    }
+}
+
+struct AwardBadge: View {
+    let label: String
+    var body: some View {
+        // Full label when it fits, otherwise just the icon (narrow grid cards).
+        ViewThatFits(in: .horizontal) {
+            chip(Label(label, systemImage: "fork.knife").fixedSize())
+            chip(Image(systemName: "fork.knife")).accessibilityLabel(Text(label))
+        }
+    }
+    private func chip(_ content: some View) -> some View {
+        content
+            .font(.caption2.weight(.bold)).lineLimit(1)
+            .padding(.horizontal, 8).padding(.vertical, 4)
+            .background(Color(red: 0.75, green: 0.12, blue: 0.18).opacity(0.25), in: Capsule())
+            .foregroundStyle(Color(red: 1.0, green: 0.55, blue: 0.55))
     }
 }
 
@@ -65,6 +87,7 @@ struct PriceTag: View {
             .background(isFree ? Theme.free.opacity(0.2) : Theme.locked.opacity(0.2))
             .foregroundStyle(isFree ? Theme.free : Theme.locked)
             .clipShape(Capsule())
+            .fixedSize()
     }
 }
 
@@ -85,8 +108,8 @@ struct PlaceCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             ZStack(alignment: .topTrailing) {
-                PlaceHeroImage(photoURL: place.heroImageUrl, coordinate: place.approxCoordinate,
-                               locked: !place.isFreeExperience, height: 150)
+                PlaceHeroImage(photoURL: place.displayPhoto?.url, coordinate: place.approxCoordinate,
+                               locked: !place.isFreeExperience, height: 150, creditText: PlacePhoto.compact(place.displayPhoto?.credit))
                 HStack {
                     if !place.isFreeExperience { LockBadge() }
                     if isSaved { Image(systemName: "bookmark.fill").font(.caption2).padding(6).background(.ultraThinMaterial, in: Circle()).foregroundStyle(Theme.accent) }
@@ -101,6 +124,7 @@ struct PlaceCard: View {
                         Label(String(format: "%.1f", place.rating), systemImage: "star.fill")
                             .font(.caption).foregroundStyle(Theme.accent)
                     }
+                    if let award = PlaceAward.labels(place.awards).first { AwardBadge(label: award) }
                     Spacer()
                     if place.editorsChoice {
                         Text("Editor's pick").font(.caption2.weight(.semibold)).foregroundStyle(Theme.accent)

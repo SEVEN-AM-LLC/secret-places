@@ -393,19 +393,21 @@ def city_sql(c) -> tuple[list[str], int, int]:
         q = lambda v: f"'{esc(v)}'" if v else "null"
         vals.append(f"('{slug}','{esc(tt)}','{esc(td)}','{esc(name)}','{esc(fd)}',{lat},{lng},{round(lat, 2)},{round(lng, 2)},"
                     f"'{esc(addr)}','{esc(name)}',{q(website)},{q(oh)},'{KINDS[k][0]}','{'paid' if paid else 'free'}',"
-                    f"{PASS_PRICE_CENTS if paid else 0},{featured},{editors},'{best_time}',{duration},'{e['id']}')")
+                    f"{PASS_PRICE_CENTS if paid else 0},{featured},{editors},'{best_time}',{duration},'{e['id']}',{q(t.get('wikidata', '').split(';')[0].strip())})")
     sql.append(
         "insert into public.places (slug,teaser_title,teaser_description,full_title,full_description,exact_lat,exact_lng,approx_lat,approx_lng,"
         "exact_address,business_name,website,opening_hours,walking_instructions,apple_maps_url,google_maps_url,country_id,city_id,primary_category_id,"
         "access_type,price_cents,product_id,status,featured,editors_choice,travel_time_min,recommended_transport,best_time,best_season,"
-        "expected_duration_min,crowd_level,price_level,mobile_signal,source,source_ref)\n"
+        "expected_duration_min,crowd_level,price_level,mobile_signal,source,source_ref,wikidata)\n"
         "select v.slug,v.tt,v.td,v.ft,v.fd,v.lat,v.lng,v.alat,v.alng,v.addr,v.biz,v.ws,"
         "(case when v.oh is null then null else jsonb_build_object('raw',v.oh) end),"
         "'From the nearest stop it''s a short walk — look for the entrance, not a sign.',"
         "'https://maps.apple.com/?ll='||v.lat||','||v.lng,'https://www.google.com/maps/search/?api=1&query='||v.lat||','||v.lng,"
         f"{country},{city},(select id from public.categories where slug=v.cat),v.access,v.price,null,{status_sql},v.featured,v.editors,"
-        "15,'walk',v.best,'all year',v.dur,'medium',2,'good','openstreetmap',v.sref\nfrom (values\n" + ",\n".join(vals) +
-        "\n) v(slug,tt,td,ft,fd,lat,lng,alat,alng,addr,biz,ws,oh,cat,access,price,featured,editors,best,dur,sref)\non conflict (slug) do nothing;")
+        "15,'walk',v.best,'all year',v.dur,'medium',2,'good','openstreetmap',v.sref,v.wd\nfrom (values\n" + ",\n".join(vals) +
+        "\n) v(slug,tt,td,ft,fd,lat,lng,alat,alng,addr,biz,ws,oh,cat,access,price,featured,editors,best,dur,sref,wd)\n"
+        # a restaurant already added from Wikidata (wikidata_enrich.py) under another slug is the same place
+        "where v.wd is null or not exists (select 1 from public.places x where x.wikidata = v.wd)\non conflict (slug) do nothing;")
     if paid_n:
         sql.append(f"update public.cities set pass_product_id='com.secretplaces.city.{cslug.replace('-', '_')}', pass_price_cents={PASS_PRICE_CENTS} "
                    f"where slug='{cslug}' and country_id={country};")

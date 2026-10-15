@@ -2321,6 +2321,50 @@
           }
         }
       }
+    },
+    "Photos marked © come from Wikimedia Commons; each shows its author and licence. Awards are taken from Wikidata — check the current guide before booking.": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Фото з позначкою © — з Wikimedia Commons, на кожному вказано автора й ліцензію. Нагороди взято з Wikidata — перед бронюванням перевірте актуальний гід."
+          }
+        }
+      }
+    },
+    "Michelin Guide": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Michelin Guide"
+          }
+        }
+      }
+    },
+    "Bib Gourmand": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bib Gourmand"
+          }
+        }
+      }
+    },
+    "50 Best": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "50 Best"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

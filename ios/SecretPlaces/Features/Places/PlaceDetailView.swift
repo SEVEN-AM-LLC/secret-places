@@ -91,12 +91,13 @@ struct PlaceDetailView: View {
 
     @ViewBuilder private func content(_ d: PlaceDetails) -> some View {
         VStack(alignment: .leading, spacing: 18) {
-            PlaceHeroImage(photoURL: d.heroImageUrl,
+            PlaceHeroImage(photoURL: d.displayPhoto?.url,
                            coordinate: d.isUnlocked ? (d.exactCoordinate ?? d.approxCoordinate) : d.approxCoordinate,
-                           locked: !d.isUnlocked, height: 240, credit: true)
+                           locked: !d.isUnlocked, height: 240, credit: true, creditText: d.displayPhoto?.credit)
             VStack(alignment: .leading, spacing: 14) {
                 HStack {
                     PriceTag(label: d.priceLabel, isFree: d.accessType == .free || (d.isFreeNow ?? false))
+                    ForEach(PlaceAward.labels(d.awards), id: \.self) { AwardBadge(label: $0) }
                     if d.ratingsCount > 0 { Label(String(format: "%.1f (%d)", d.rating, d.ratingsCount), systemImage: "star.fill").font(.caption).foregroundStyle(Theme.accent) }
                     Spacer()
                     if let cat = env.category(for: d.primaryCategoryId) { Text(cat.title).font(.caption).foregroundStyle(Theme.textMuted) }
@@ -114,8 +115,8 @@ struct PlaceDetailView: View {
 
     private func header(fromTeaser: Bool) -> some View {
         Group { if let t = teaser {
-            PlaceHeroImage(photoURL: t.heroImageUrl, coordinate: t.approxCoordinate,
-                           locked: !t.isFreeExperience, height: 240, credit: true)
+            PlaceHeroImage(photoURL: t.displayPhoto?.url, coordinate: t.approxCoordinate,
+                           locked: !t.isFreeExperience, height: 240, credit: true, creditText: t.displayPhoto?.credit)
         } }
     }
 
