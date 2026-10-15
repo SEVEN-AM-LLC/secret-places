@@ -344,9 +344,11 @@ def overpass_one(sel: str, lat: float, lng: float) -> list[dict] | None:
 
 def overpass(lat: float, lng: float) -> list[dict]:
     out, failed = [], 0
-    for sel in SELECTORS:
+    for i, sel in enumerate(SELECTORS):
         els = overpass_one(sel, lat, lng)
         if els is None:
+            if i == 0:   # every mirror down: don't spend half an hour retrying the rest
+                return []
             failed += 1
             continue
         for e in els:   # ways/relations come back with a centre point
@@ -429,7 +431,11 @@ KYIV = ("ukraine", "Ukraine", "🇺🇦", "kyiv", "Kyiv", 50.4501, 30.5234)
 
 def city_sql(c) -> tuple[list[str], int, int]:
     country_slug, country_name, flag, cslug, ctitle, clat, clng = c
-    picked = pick(overpass(clat, clng), cslug)
+    els = overpass(clat, clng)
+    if not els:   # public Overpass mirrors down — fall back to a BBBike extract (server venv has pyosmium)
+        import extract
+        els = extract.elements(cslug, ctitle, clat, clng, RADIUS) or []
+    picked = pick(els, cslug)
     if not picked:
         return [], 0, 0
     country = f"(select id from public.countries where slug='{country_slug}')"
