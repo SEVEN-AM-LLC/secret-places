@@ -10,6 +10,8 @@ struct RemoteImage: View {
     var credit: Bool = false
     /// Licence attribution shown on the image whenever it is set (Commons photos), even on small cards.
     var creditText: String? = nil
+    /// Where the credit sits — top corner when a title is laid over the bottom of the image.
+    var creditAlignment: Alignment = .bottomTrailing
 
     private var placeholder: some View {
         LinearGradient(colors: [Theme.surface2, Theme.surface], startPoint: .topLeading, endPoint: .bottomTrailing)
@@ -44,7 +46,7 @@ struct RemoteImage: View {
             }
             .frame(width: geo.size.width, height: height)
             .clipped()
-            .overlay(alignment: .bottomTrailing) {
+            .overlay(alignment: creditAlignment) {
                 if let label = creditLabel {
                     Text(label)
                         .lineLimit(1)

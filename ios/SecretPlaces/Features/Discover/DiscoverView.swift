@@ -256,8 +256,8 @@ struct CityTile: View {
     let count: Int
     var body: some View {
         ZStack(alignment: .bottomLeading) {
-            if let cover = city.coverUrl, !cover.isEmpty {
-                RemoteImage(url: cover, height: 120)
+            if let cover = city.displayCover {
+                RemoteImage(url: cover.url, height: 120, creditText: PlacePhoto.compact(cover.credit), creditAlignment: .topTrailing)
             } else {
                 AreaMapImage(coordinate: city.lat.flatMap { la in city.lng.map { CLLocationCoordinate2D(latitude: la, longitude: $0) } },
                              height: 120, spanMeters: 9000, showsMarker: false)

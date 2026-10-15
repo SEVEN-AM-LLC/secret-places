@@ -18,7 +18,11 @@ struct CityView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
                 ZStack(alignment: .bottomLeading) {
-                    RemoteImage(url: city.coverUrl, height: 200)
+                    if let cover = city.displayCover {
+                        RemoteImage(url: cover.url, height: 200, creditText: cover.credit, creditAlignment: .topTrailing)
+                    } else {
+                        RemoteImage(url: nil, height: 200)
+                    }
                     LinearGradient(colors: [.clear, .black.opacity(0.8)], startPoint: .top, endPoint: .bottom)
                     VStack(alignment: .leading, spacing: 4) {
                         Text(city.title).font(.largeTitle.bold()).foregroundStyle(.white)

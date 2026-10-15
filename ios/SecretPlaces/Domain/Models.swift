@@ -35,6 +35,14 @@ struct City: Codable, Equatable, Hashable, Identifiable, Sendable {
     let coverUrl: String?
     let countryId: String?
     let isOutsideCity: Bool?
+    /// Commons cover — only shown together with its credit.
+    var coverPhotoUrl: String? = nil
+    var coverPhotoCredit: String? = nil
+
+    var displayCover: (url: String, credit: String?)? {
+        if let coverUrl, !coverUrl.isEmpty { return (coverUrl, nil) }
+        return PlacePhoto.pick(hero: nil, commons: coverPhotoUrl, credit: coverPhotoCredit)
+    }
 }
 
 struct Neighborhood: Codable, Equatable, Hashable, Identifiable, Sendable {
