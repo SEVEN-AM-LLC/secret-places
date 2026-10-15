@@ -46,8 +46,9 @@ def step(name: str, fn):
 
 def main():
     state = json.load(open(STATE)) if os.path.exists(STATE) else {}
-    cities = [w.KYIV] + w.CITIES + w.EUROPE_2 + w.WORLD_3 + w.WORLD_4 + w.WORLD_5
-    queue = sorted(cities, key=lambda c: state.get(c[3], ""))[:PER_RUN]   # never-run ("") first, then oldest
+    cities = [w.KYIV] + w.CITIES + w.EUROPE_2 + w.WORLD_3 + w.WORLD_4 + w.WORLD_5 + w.WORLD_6
+    priority = {c[3] for c in w.WORLD_6}   # revenue picks jump the queue among never-imported cities
+    queue = sorted(cities, key=lambda c: (state.get(c[3], ""), c[3] not in priority))[:PER_RUN]   # never-run first, then oldest
     before = counts()
     log(f"start: {before}; cities this run: {', '.join(c[4] for c in queue)}")
 

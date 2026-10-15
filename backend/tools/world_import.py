@@ -207,6 +207,68 @@ WORLD_5 = [
     ("chile", "Chile", "🇨🇱", "valparaiso", "Valparaíso", -33.0472, -71.6127),
     ("panama", "Panama", "🇵🇦", "panama-city", "Panama City", 8.9824, -79.5199),
 ]
+# Wave 6 — picked for revenue: high-spend travellers, high iPhone share, nightlife, digital nomads.
+WORLD_6 = [
+    ("united-states", "United States", "🇺🇸", "san-diego", "San Diego", 32.7157, -117.1611),
+    ("united-states", "United States", "🇺🇸", "denver", "Denver", 39.7392, -104.9903),
+    ("united-states", "United States", "🇺🇸", "atlanta", "Atlanta", 33.7490, -84.3880),
+    ("united-states", "United States", "🇺🇸", "honolulu", "Honolulu", 21.3069, -157.8583),
+    ("united-states", "United States", "🇺🇸", "charleston", "Charleston", 32.7765, -79.9311),
+    ("united-states", "United States", "🇺🇸", "savannah", "Savannah", 32.0809, -81.0912),
+    ("united-states", "United States", "🇺🇸", "scottsdale", "Scottsdale", 33.4942, -111.9261),
+    ("united-states", "United States", "🇺🇸", "san-juan", "San Juan", 18.4655, -66.1057),
+    ("united-kingdom", "United Kingdom", "🇬🇧", "bristol", "Bristol", 51.4545, -2.5879),
+    ("united-kingdom", "United Kingdom", "🇬🇧", "liverpool", "Liverpool", 53.4084, -2.9916),
+    ("united-kingdom", "United Kingdom", "🇬🇧", "brighton", "Brighton", 50.8225, -0.1372),
+    ("united-kingdom", "United Kingdom", "🇬🇧", "bath", "Bath", 51.3811, -2.3590),
+    ("united-kingdom", "United Kingdom", "🇬🇧", "oxford", "Oxford", 51.7520, -1.2577),
+    ("united-kingdom", "United Kingdom", "🇬🇧", "belfast", "Belfast", 54.5973, -5.9301),
+    ("greece", "Greece", "🇬🇷", "mykonos", "Mykonos", 37.4467, 25.3289),
+    ("greece", "Greece", "🇬🇷", "santorini", "Santorini", 36.4166, 25.4318),
+    ("spain", "Spain", "🇪🇸", "ibiza", "Ibiza", 38.9067, 1.4206),
+    ("spain", "Spain", "🇪🇸", "palma", "Palma de Mallorca", 39.5696, 2.6502),
+    ("spain", "Spain", "🇪🇸", "marbella", "Marbella", 36.5101, -4.8824),
+    ("spain", "Spain", "🇪🇸", "granada", "Granada", 37.1773, -3.5986),
+    ("spain", "Spain", "🇪🇸", "bilbao", "Bilbao", 43.2630, -2.9350),
+    ("italy", "Italy", "🇮🇹", "como", "Como", 45.8081, 9.0852),
+    ("italy", "Italy", "🇮🇹", "verona", "Verona", 45.4384, 10.9916),
+    ("monaco", "Monaco", "🇲🇨", "monaco", "Monaco", 43.7384, 7.4246),
+    ("france", "France", "🇫🇷", "cannes", "Cannes", 43.5528, 7.0174),
+    ("france", "France", "🇫🇷", "strasbourg", "Strasbourg", 48.5734, 7.7521),
+    ("switzerland", "Switzerland", "🇨🇭", "geneva", "Geneva", 46.2044, 6.1432),
+    ("switzerland", "Switzerland", "🇨🇭", "lucerne", "Lucerne", 47.0502, 8.3093),
+    ("belgium", "Belgium", "🇧🇪", "bruges", "Bruges", 51.2093, 3.2247),
+    ("germany", "Germany", "🇩🇪", "frankfurt", "Frankfurt", 50.1109, 8.6821),
+    ("germany", "Germany", "🇩🇪", "dusseldorf", "Düsseldorf", 51.2277, 6.7735),
+    ("poland", "Poland", "🇵🇱", "gdansk", "Gdańsk", 54.3520, 18.6466),
+    ("poland", "Poland", "🇵🇱", "wroclaw", "Wrocław", 51.1079, 17.0385),
+    ("montenegro", "Montenegro", "🇲🇪", "kotor", "Kotor", 42.4247, 18.7712),
+    ("turkiye", "Türkiye", "🇹🇷", "antalya", "Antalya", 36.8969, 30.7133),
+    ("turkiye", "Türkiye", "🇹🇷", "bodrum", "Bodrum", 37.0344, 27.4305),
+    ("cyprus", "Cyprus", "🇨🇾", "limassol", "Limassol", 34.6786, 33.0413),
+    ("united-arab-emirates", "United Arab Emirates", "🇦🇪", "abu-dhabi", "Abu Dhabi", 24.4539, 54.3773),
+    ("qatar", "Qatar", "🇶🇦", "doha", "Doha", 25.2854, 51.5310),
+    ("oman", "Oman", "🇴🇲", "muscat", "Muscat", 23.5880, 58.3829),
+    ("thailand", "Thailand", "🇹🇭", "phuket", "Phuket", 7.8804, 98.3923),
+    ("indonesia", "Indonesia", "🇮🇩", "canggu", "Canggu", -8.6478, 115.1385),
+    ("vietnam", "Vietnam", "🇻🇳", "hoi-an", "Hoi An", 15.8801, 108.3380),
+    ("vietnam", "Vietnam", "🇻🇳", "da-nang", "Da Nang", 16.0544, 108.2022),
+    ("malaysia", "Malaysia", "🇲🇾", "george-town", "George Town", 5.4141, 100.3288),
+    ("cambodia", "Cambodia", "🇰🇭", "siem-reap", "Siem Reap", 13.3671, 103.8448),
+    ("japan", "Japan", "🇯🇵", "sapporo", "Sapporo", 43.0618, 141.3545),
+    ("japan", "Japan", "🇯🇵", "fukuoka", "Fukuoka", 33.5902, 130.4017),
+    ("south-korea", "South Korea", "🇰🇷", "busan", "Busan", 35.1796, 129.0756),
+    ("macau", "Macau", "🇲🇴", "macau", "Macau", 22.1987, 113.5439),
+    ("india", "India", "🇮🇳", "goa", "Goa (Panaji)", 15.4909, 73.8278),
+    ("australia", "Australia", "🇦🇺", "gold-coast", "Gold Coast", -28.0167, 153.4000),
+    ("mexico", "Mexico", "🇲🇽", "tulum", "Tulum", 20.2114, -87.4654),
+    ("mexico", "Mexico", "🇲🇽", "playa-del-carmen", "Playa del Carmen", 20.6296, -87.0739),
+    ("mexico", "Mexico", "🇲🇽", "cancun", "Cancún", 21.1619, -86.8515),
+    ("mexico", "Mexico", "🇲🇽", "puerto-vallarta", "Puerto Vallarta", 20.6534, -105.2253),
+    ("mexico", "Mexico", "🇲🇽", "san-miguel-de-allende", "San Miguel de Allende", 20.9144, -100.7452),
+    ("brazil", "Brazil", "🇧🇷", "florianopolis", "Florianópolis", -27.5954, -48.5480),
+]
+
 
 
 
@@ -492,12 +554,12 @@ def city_sql(c) -> tuple[list[str], int, int]:
 
 if __name__ == "__main__":
     args = sys.argv[1:]
-    waves = {"--draft": EUROPE_2, "--draft=world3": WORLD_3, "--draft=world4": WORLD_4, "--draft=world5": WORLD_5}   # later waves stay hidden until their passes are approved
+    waves = {"--draft": EUROPE_2, "--draft=world3": WORLD_3, "--draft=world4": WORLD_4, "--draft=world5": WORLD_5, "--draft=world6": WORLD_6}   # later waves stay hidden until their passes are approved
     for flag, wave in waves.items():
         if flag in args:
             args.remove(flag); STATUS = "draft"; CITIES = wave
     if "--deepen" in args:      # all cities again; on conflict (slug) keeps what's there
-        args.remove("--deepen"); DEEPEN = True; CITIES = [KYIV] + CITIES + EUROPE_2 + WORLD_3 + WORLD_4 + WORLD_5
+        args.remove("--deepen"); DEEPEN = True; CITIES = [KYIV] + CITIES + EUROPE_2 + WORLD_3 + WORLD_4 + WORLD_5 + WORLD_6
     out_path = args[0] if args else "world_seed.sql"
     only = set(args[1:])
     lines = ["-- Generated by backend/tools/world_import.py — real places from OpenStreetMap (ODbL), © OpenStreetMap contributors."]
