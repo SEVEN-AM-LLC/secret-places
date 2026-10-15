@@ -3,9 +3,9 @@ import SwiftUI
 // MARK: - Typography
 
 extension Theme {
-    /// Editorial display face (New York) for titles — the "guidebook" voice of the app.
-    static func display(_ size: CGFloat, weight: Font.Weight = .semibold) -> Font {
-        .system(size: size, weight: weight, design: .serif)
+    /// Display face for titles: the modern system sans (SF Pro), bold and tight. Never serif.
+    static func display(_ size: CGFloat, weight: Font.Weight = .bold) -> Font {
+        .system(size: size, weight: weight, design: .default)
     }
 }
 
@@ -91,7 +91,7 @@ struct MysteryArt: View {
         }
         .overlay(alignment: .bottomLeading) {
             Text(SecretNumber.label(seed))
-                .font(Theme.display(13, weight: .medium)).italic()
+                .font(Theme.display(13, weight: .semibold))
                 .foregroundStyle(style.tint.opacity(0.85))
                 .padding(10)
         }

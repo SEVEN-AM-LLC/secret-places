@@ -139,7 +139,7 @@ struct PlaceDetailView: View {
             Image(systemName: s.symbol)
             Text(env.category(for: categoryId)?.title ?? "")
             Text("·")
-            Text(SecretNumber.label(id)).italic()
+            Text(SecretNumber.label(id))
         }
         .font(.footnote.weight(.semibold)).foregroundStyle(s.tint)
     }
