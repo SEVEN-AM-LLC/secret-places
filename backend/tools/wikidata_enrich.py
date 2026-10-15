@@ -123,7 +123,7 @@ def commons(files: list[str]) -> dict[str, tuple[str, str]]:
                 continue
             artist = strip_html(md.get("Artist", {}).get("value", ""))
             # "No machine-readable author provided. Jane~commonswiki assumed (based on copyright claims)."
-            if m := re.search(r"provided\. (.+?)~commonswiki assumed", artist):
+            if m := re.search(r"provided\. (.+?)(?:~commonswiki)? assumed", artist):
                 artist = m.group(1)
             artist = re.sub(r"^Anonymous\s*Unknown author$", "Unknown author", artist)[:80] or "Unknown author"
             name = norm.get(page["title"], page["title"]).removeprefix("File:")
