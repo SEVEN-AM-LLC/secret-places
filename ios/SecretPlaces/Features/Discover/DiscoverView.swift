@@ -47,13 +47,14 @@ struct DiscoverView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
-                cityButton
+                header
                 categoryChips
                 switch vm.state {
                 case .idle, .loading: LoadingView()
                 case .offline: ErrorStateView(error: .offline) { Task { await vm.load(env, cityId: env.selectedCityId) } }
                 case .failed(let e): ErrorStateView(error: e) { Task { await vm.load(env, cityId: env.selectedCityId) } }
                 default:
+                    secretOfTheDay
                     rail("Featured secrets", vm.featured)
                     collectionsRail
                     eventsRail
@@ -69,6 +70,7 @@ struct DiscoverView: View {
         }
         .background(Theme.bg)
         .navigationTitle("Discover")
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button { showSuggest = true } label: { Image(systemName: "plus.circle") }
@@ -88,22 +90,106 @@ struct DiscoverView: View {
         }
     }
 
-    private var cityButton: some View {
-        Button { showCityPicker = true } label: {
-            HStack(spacing: 8) {
-                Image(systemName: "location.fill").font(.subheadline).foregroundStyle(Theme.accent)
-                Text(env.selectedCity?.title ?? String(localized: "Choose a city"))
-                    .font(.title3.weight(.semibold)).foregroundStyle(Theme.text)
-                if let c = env.selectedCity, let flag = env.country(for: c.countryId)?.emojiFlag { Text(flag) }
-                Image(systemName: "chevron.down").font(.footnote.weight(.bold)).foregroundStyle(Theme.textMuted)
+    // MARK: Header
+
+    private var header: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(greeting).font(.subheadline).foregroundStyle(Theme.textMuted)
+            Button { showCityPicker = true } label: {
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    Text(mood).font(Theme.display(34)).foregroundStyle(Theme.text)
+                        .multilineTextAlignment(.leading).lineLimit(2).minimumScaleFactor(0.7)
+                    if let c = env.selectedCity, let flag = env.country(for: c.countryId)?.emojiFlag { Text(flag).font(.title2) }
+                    Image(systemName: "chevron.down").font(.footnote.weight(.bold)).foregroundStyle(Theme.accent)
+                }
             }
-            .padding(.horizontal, 14).padding(.vertical, 9)
-            .background(Theme.surface, in: Capsule())
+            .buttonStyle(.plain)
+            .accessibilityLabel(Text("City: \(env.selectedCity?.title ?? "")"))
+            .accessibilityHint(Text("Choose a different city"))
+            progressBar
         }
-        .buttonStyle(.plain)
-        .padding(.horizontal, 14)
-        .accessibilityLabel(Text("City: \(env.selectedCity?.title ?? "")"))
-        .accessibilityHint(Text("Choose a different city"))
+        .padding(.horizontal, 16)
+    }
+
+    private var greeting: String {
+        switch Calendar.current.component(.hour, from: .now) {
+        case 5..<12: return String(localized: "Good morning")
+        case 12..<17: return String(localized: "Good afternoon")
+        default: return String(localized: "Good evening")
+        }
+    }
+
+    /// "Paris after dark", "Lisbon this morning" — the city in the mood of the hour.
+    private var mood: String {
+        guard let city = env.selectedCity?.title else { return String(localized: "Choose a city") }
+        switch Calendar.current.component(.hour, from: .now) {
+        case 5..<12: return String(localized: "\(city) this morning")
+        case 12..<17: return String(localized: "\(city) this afternoon")
+        case 17..<22: return String(localized: "\(city) tonight")
+        default: return String(localized: "\(city) after dark")
+        }
+    }
+
+    @ViewBuilder private var progressBar: some View {
+        let p = env.progress(cityId: env.selectedCityId)
+        if p.total > 0 {
+            HStack(spacing: 10) {
+                if p.found > 0 {
+                    ProgressView(value: Double(p.found), total: Double(p.total)).tint(Theme.accent)
+                    Text("\(p.found) of \(p.total) found").font(.caption.weight(.semibold)).foregroundStyle(Theme.accent).fixedSize()
+                } else {
+                    Image(systemName: "sparkles").font(.caption).foregroundStyle(Theme.accent)
+                    Text("\(p.total) secrets to find").font(.caption.weight(.semibold)).foregroundStyle(Theme.accent)
+                }
+            }
+        }
+    }
+
+    // MARK: Secret of the day
+
+    /// One free secret per day, the same for everyone that day — photo-first when we have one.
+    private var dailyPick: PlaceTeaser? {
+        let pool = (vm.freeToday + vm.featured.filter(\.isFreeExperience) + vm.editors.filter(\.isFreeExperience))
+        var seen = Set<String>()
+        let unique = pool.filter { seen.insert($0.id).inserted }
+        let withPhoto = unique.filter { $0.displayPhoto != nil }
+        let candidates = withPhoto.isEmpty ? unique : withPhoto
+        guard !candidates.isEmpty else { return nil }
+        let day = Calendar.current.ordinality(of: .day, in: .era, for: .now) ?? 0
+        return candidates.sorted { $0.id < $1.id }[day % candidates.count]
+    }
+
+    @ViewBuilder private var secretOfTheDay: some View {
+        if let p = dailyPick {
+            let style = env.style(forCategory: p.primaryCategoryId)
+            NavigationLink(value: p) {
+                ZStack(alignment: .bottomLeading) {
+                    PlaceHeroImage(photoURL: p.displayPhoto?.url, coordinate: p.approxCoordinate, locked: false, height: 320,
+                                   creditText: PlacePhoto.compact(p.displayPhoto?.credit), style: style, seed: p.id, artWhenNoPhoto: true, creditAlignment: .topTrailing)
+                    LinearGradient(colors: [.clear, .black.opacity(0.15), .black.opacity(0.85)], startPoint: .top, endPoint: .bottom)
+                        .allowsHitTesting(false)
+                    VStack(alignment: .leading, spacing: 6) {
+                        Label("Secret of the day", systemImage: "key.fill")
+                            .font(.caption.weight(.bold)).foregroundStyle(Theme.accent)
+                        Text(p.teaserTitle).font(Theme.display(26)).foregroundStyle(.white)
+                            .multilineTextAlignment(.leading).lineLimit(3)
+                        HStack(spacing: 6) {
+                            Image(systemName: style.symbol)
+                            Text(env.category(for: p.primaryCategoryId)?.title ?? "")
+                            Text("·")
+                            Text("Free today")
+                        }
+                        .font(.caption.weight(.semibold)).foregroundStyle(.white.opacity(0.85))
+                    }
+                    .padding(18)
+                }
+                .frame(height: 320)
+                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).stroke(Theme.accent.opacity(0.25), lineWidth: 1))
+            }
+            .buttonStyle(.plain)
+            .padding(.horizontal, 16)
+        }
     }
 
     private var suggestCard: some View {
@@ -133,14 +219,7 @@ struct DiscoverView: View {
                         PlacesListView(title: env.selectedCity.map { "\(cat.title) · \($0.title)" } ?? cat.title,
                                        query: PlaceQuery(cityId: env.selectedCityId, categoryId: cat.id))
                     } label: {
-                        HStack(spacing: 6) {
-                            if let icon = cat.icon { Image(systemName: icon) }
-                            Text(cat.title)
-                        }
-                        .font(.subheadline.weight(.medium))
-                        .padding(.horizontal, 14).padding(.vertical, 9)
-                        .background(Theme.surface).foregroundStyle(Theme.text)
-                        .clipShape(Capsule())
+                        CategoryChip(category: cat)
                     }.buttonStyle(.plain)
                 }
             }.padding(.horizontal, 14)

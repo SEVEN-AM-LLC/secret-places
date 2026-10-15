@@ -106,10 +106,17 @@ struct PlaceHeroImage: View {
     var credit: Bool = false
     /// Attribution that must travel with the photo (Wikimedia Commons).
     var creditText: String? = nil
+    /// Category art instead of the area map: always when locked, and for photo-less places when `artWhenNoPhoto`.
+    var style: CategoryStyle? = nil
+    var seed: String? = nil
+    var artWhenNoPhoto = false
+    var creditAlignment: Alignment = .bottomTrailing
 
     var body: some View {
         if !locked, let photoURL, !photoURL.isEmpty {
-            RemoteImage(url: photoURL, height: height, credit: credit, creditText: creditText)
+            RemoteImage(url: photoURL, height: height, credit: credit, creditText: creditText, creditAlignment: creditAlignment)
+        } else if let style, let seed, locked || artWhenNoPhoto {
+            MysteryArt(style: style, seed: seed, height: height, locked: locked)
         } else {
             AreaMapImage(coordinate: coordinate, height: height, locked: locked)
         }

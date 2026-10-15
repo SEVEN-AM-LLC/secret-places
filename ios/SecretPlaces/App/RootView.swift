@@ -18,5 +18,19 @@ struct RootView: View {
         }
         .tint(Theme.accent)
         .background(Theme.bg)
+        .overlay(alignment: .top) {
+            if let a = env.celebratedAchievement {
+                AchievementToast(achievement: a)
+                    .padding(.top, 8)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .onTapGesture { env.celebratedAchievement = nil }
+                    .task(id: a.id) {
+                        Haptics.success()
+                        try? await Task.sleep(for: .seconds(3.5))
+                        withAnimation { env.celebratedAchievement = nil }
+                    }
+            }
+        }
+        .animation(.spring(response: 0.45, dampingFraction: 0.8), value: env.celebratedAchievement?.id)
     }
 }

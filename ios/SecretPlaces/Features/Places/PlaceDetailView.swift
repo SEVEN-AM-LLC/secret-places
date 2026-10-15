@@ -6,6 +6,8 @@ final class PlaceDetailViewModel: ObservableObject {
     @Published var state: LoadState<PlaceDetails> = .idle
     @Published var priceLabel = Config.defaultPriceLabel
     @Published var errorMessage: String?
+    /// Set right after a successful purchase — drives the reveal moment.
+    @Published var revealed: PlaceDetails?
 
     let placeId: String
     init(placeId: String) { self.placeId = placeId }
@@ -15,6 +17,10 @@ final class PlaceDetailViewModel: ObservableObject {
         do {
             let details = try await env.places.details(id: placeId)
             state = .loaded(details)
+            #if DEBUG
+            // Preview the reveal moment without a purchase: launch with -demoReveal and open a free place.
+            if details.isUnlocked, ProcessInfo.processInfo.arguments.contains("-demoReveal") { revealed = details }
+            #endif
             if details.isUnlocked { await DiskCache.shared.save(details, key: cacheKey) }
             if let pid = details.productId, details.accessType == .paid {
                 priceLabel = await purchases.priceLabel(for: pid, fallback: details.priceLabel)
@@ -38,6 +44,7 @@ final class PlaceDetailViewModel: ObservableObject {
                 await load(env, purchases: purchases)
             }
             await env.entitlements.refresh()
+            if let d = state.value, d.isUnlocked { revealed = d }
         } catch AppError.purchaseCancelled {
             // silent
         } catch let e as AppError {
@@ -80,6 +87,10 @@ struct PlaceDetailView: View {
             SignInView(reason: "Sign in to unlock and keep your secrets across devices.")
         }
         .sheet(isPresented: $showRate) { if let d = vm.state.value { RatePlaceSheet(place: d) } }
+        .fullScreenCover(item: $vm.revealed) { d in
+            UnlockRevealView(details: d, style: env.style(forCategory: d.primaryCategoryId),
+                             progress: env.progress(cityId: d.cityId)) { vm.revealed = nil }
+        }
         .alert("Purchase problem", isPresented: .constant(vm.errorMessage != nil)) {
             Button("OK") { vm.errorMessage = nil }
         } message: { Text(vm.errorMessage ?? "") }
@@ -93,16 +104,17 @@ struct PlaceDetailView: View {
         VStack(alignment: .leading, spacing: 18) {
             PlaceHeroImage(photoURL: d.displayPhoto?.url,
                            coordinate: d.isUnlocked ? (d.exactCoordinate ?? d.approxCoordinate) : d.approxCoordinate,
-                           locked: !d.isUnlocked, height: 240, credit: true, creditText: d.displayPhoto?.credit)
+                           locked: !d.isUnlocked, height: 260, credit: true, creditText: d.displayPhoto?.credit,
+                           style: env.style(forCategory: d.primaryCategoryId), seed: d.id)
             VStack(alignment: .leading, spacing: 14) {
                 HStack {
                     PriceTag(label: d.priceLabel, isFree: d.accessType == .free || (d.isFreeNow ?? false))
                     ForEach(PlaceAward.labels(d.awards), id: \.self) { AwardBadge(label: $0) }
                     if d.ratingsCount > 0 { Label(String(format: "%.1f (%d)", d.rating, d.ratingsCount), systemImage: "star.fill").font(.caption).foregroundStyle(Theme.accent) }
                     Spacer()
-                    if let cat = env.category(for: d.primaryCategoryId) { Text(cat.title).font(.caption).foregroundStyle(Theme.textMuted) }
                 }
-                Text(d.displayTitle).font(.title.bold()).foregroundStyle(Theme.text)
+                categoryLine(d.primaryCategoryId, id: d.id)
+                Text(d.displayTitle).font(Theme.display(30)).foregroundStyle(Theme.text)
                 Text(d.isUnlocked ? (d.fullDescription ?? d.teaserDescription) : d.teaserDescription)
                     .font(.body).foregroundStyle(Theme.textMuted)
 
@@ -116,8 +128,20 @@ struct PlaceDetailView: View {
     private func header(fromTeaser: Bool) -> some View {
         Group { if let t = teaser {
             PlaceHeroImage(photoURL: t.displayPhoto?.url, coordinate: t.approxCoordinate,
-                           locked: !t.isFreeExperience, height: 240, credit: true, creditText: t.displayPhoto?.credit)
+                           locked: !t.isFreeExperience, height: 260, credit: true, creditText: t.displayPhoto?.credit,
+                           style: env.style(forCategory: t.primaryCategoryId), seed: t.id)
         } }
+    }
+
+    private func categoryLine(_ categoryId: String?, id: String) -> some View {
+        let s = env.style(forCategory: categoryId)
+        return HStack(spacing: 6) {
+            Image(systemName: s.symbol)
+            Text(env.category(for: categoryId)?.title ?? "")
+            Text("·")
+            Text(SecretNumber.label(id)).italic()
+        }
+        .font(.footnote.weight(.semibold)).foregroundStyle(s.tint)
     }
 
     private func quickFacts(_ d: PlaceDetails) -> some View {
@@ -198,12 +222,10 @@ struct PlaceDetailView: View {
             infoBlock("Safety", d.safetyInfo)
             infoBlock("What to bring", d.whatToBring)
             if !d.tags.isEmpty { FlowChips(chips: d.tags.map { "#\($0)" }) }
-            HStack(spacing: 12) {
-                Button { showRate = true } label: { Label("Rate", systemImage: "star").frame(maxWidth: .infinity) }.buttonStyle(.bordered).tint(Theme.accent)
-                Button { Task { await env.setStatus(placeId, .visited) } } label: {
-                    Label(env.placeStatuses[placeId] == .visited ? "Visited" : "Mark visited", systemImage: "checkmark.seal").frame(maxWidth: .infinity)
-                }.buttonStyle(.bordered).tint(Theme.free)
-            }
+            VisitedStampButton(placeId: placeId, cityId: d.cityId,
+                               cityTitle: d.cityTitle ?? env.cities.first { $0.id == d.cityId }?.title)
+            Button { showRate = true } label: { Label("Rate this secret", systemImage: "star").frame(maxWidth: .infinity) }
+                .buttonStyle(.bordered).tint(Theme.accent)
         }
     }
 

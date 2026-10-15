@@ -107,18 +107,36 @@ struct LockBadge: View {
 struct PlaceCard: View {
     let place: PlaceTeaser
     var isSaved: Bool = false
+    @EnvironmentObject private var env: AppEnvironment
+
     var body: some View {
+        let style = env.style(forCategory: place.primaryCategoryId)
+        let visited = env.placeStatuses[place.id] == .visited
         VStack(alignment: .leading, spacing: 0) {
             ZStack(alignment: .topTrailing) {
                 PlaceHeroImage(photoURL: place.displayPhoto?.url, coordinate: place.approxCoordinate,
-                               locked: !place.isFreeExperience, height: 150, creditText: PlacePhoto.compact(place.displayPhoto?.credit))
-                HStack {
-                    if !place.isFreeExperience { LockBadge() }
-                    if isSaved { Image(systemName: "bookmark.fill").font(.caption2).padding(6).background(.ultraThinMaterial, in: Circle()).foregroundStyle(Theme.accent) }
+                               locked: !place.isFreeExperience, height: 150, creditText: PlacePhoto.compact(place.displayPhoto?.credit),
+                               style: style, seed: place.id, artWhenNoPhoto: true)
+                HStack(spacing: 6) {
+                    if visited {
+                        Image(systemName: "checkmark.seal.fill").font(.caption).padding(6)
+                            .background(.ultraThinMaterial, in: Circle()).foregroundStyle(Theme.free)
+                    }
+                    if isSaved {
+                        Image(systemName: "bookmark.fill").font(.caption2).padding(6)
+                            .background(.ultraThinMaterial, in: Circle()).foregroundStyle(Theme.accent)
+                    }
                 }.padding(8)
             }
             VStack(alignment: .leading, spacing: 6) {
-                Text(place.teaserTitle).font(.headline).foregroundStyle(Theme.text).lineLimit(2)
+                HStack(spacing: 5) {
+                    Image(systemName: style.symbol)
+                    Text(env.category(for: place.primaryCategoryId)?.title ?? "")
+                    Text("·")
+                    Text(SecretNumber.label(place.id))
+                }
+                .font(.caption2.weight(.semibold)).foregroundStyle(style.tint).lineLimit(1)
+                Text(place.teaserTitle).font(Theme.display(17)).foregroundStyle(Theme.text).lineLimit(2)
                 Text(place.teaserDescription).font(.subheadline).foregroundStyle(Theme.textMuted).lineLimit(2)
                 HStack(spacing: 8) {
                     PriceTag(label: place.priceLabel, isFree: place.isFreeExperience)
@@ -127,9 +145,10 @@ struct PlaceCard: View {
                             .font(.caption).foregroundStyle(Theme.accent)
                     }
                     if let award = PlaceAward.labels(place.awards).first { AwardBadge(label: award) }
-                    Spacer()
+                    Spacer(minLength: 0)
                     if place.editorsChoice {
-                        Text("Editor's pick").font(.caption2.weight(.semibold)).foregroundStyle(Theme.accent)
+                        Image(systemName: "rosette").font(.caption).foregroundStyle(Theme.accent)
+                            .accessibilityLabel(Text("Editor's pick"))
                     }
                 }
             }
@@ -182,7 +201,7 @@ struct SectionHeader: View {
     var subtitle: LocalizedStringKey? = nil
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(title).font(.title3.bold()).foregroundStyle(Theme.text)
+            Text(title).font(Theme.display(22)).foregroundStyle(Theme.text)
             if let subtitle { Text(subtitle).font(.subheadline).foregroundStyle(Theme.textMuted) }
         }
     }

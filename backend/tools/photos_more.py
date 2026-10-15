@@ -99,10 +99,15 @@ def lead_images(titles: dict[str, str]) -> dict[str, tuple[str, float | None, fl
     return out
 
 
+CITY_WORDS: set[str] = set()   # filled in main(): city/district names match too many unrelated files
+
+
 def nearby_file(name: str, lat: float, lng: float) -> str | None:
-    want = words(name)
+    want = words(name) - CITY_WORDS
     if not want:
         return None
+    # Two-word names need both words ("Tauschgarten Perlach" is not any building in Perlach); longer names most of them.
+    need = len(want) if len(want) <= 2 else math.ceil(len(want) * 0.6)
     try:
         r = we.get("https://commons.wikimedia.org/w/api.php", {"action": "query", "list": "geosearch", "gscoord": f"{lat}|{lng}",
                    "gsradius": 60, "gsnamespace": 6, "gslimit": 30, "format": "json"}, tries=2)
@@ -110,7 +115,7 @@ def nearby_file(name: str, lat: float, lng: float) -> str | None:
         return None
     for hit in r.get("query", {}).get("geosearch", []):
         title = hit["title"].removeprefix("File:")
-        if want & words(title) and re.search(r"\.(jpe?g|png|webp)$", title, re.I):
+        if len(want & words(title)) >= need and re.search(r"\.(jpe?g|png|webp)$", title, re.I):
             return title
     return None
 
@@ -126,6 +131,9 @@ def main(out_path: str):
                       "where p.source = 'openstreetmap' and p.photo_url is null and p.hero_image_url is null")
     cities = sql_rows("select id, title, lat, lng from cities where cover_photo_url is null and lat is not null")
     print(f"{len(places)} places without a photo, {len(cities)} cities without a cover", file=sys.stderr)
+    for c in sql_rows("select title from cities"):
+        CITY_WORDS.update(words(c["title"]))
+    CITY_WORDS.update({"leith", "perlach", "athens", "athina", "lisboa", "roma", "praha", "wien", "munchen", "firenze", "napoli", "kyiv", "kiev"})
 
     tags = osm_tags(places)
     files: dict[str, str] = {}      # place id → Commons file name

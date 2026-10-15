@@ -39,6 +39,10 @@ final class AppEnvironment: ObservableObject {
     var selectedCity: City? { cities.first { $0.id == selectedCityId } }
     private static let cityKey = "sp_selected_city"
     @Published var placeStatuses: [String: PlaceUserStatus] = [:]
+    /// Teasers of the places marked visited — drives city progress and badges.
+    @Published private(set) var visitedPlaces: [PlaceTeaser] = []
+    /// A badge earned by the latest "I've been here" — shown once as a celebration.
+    @Published var celebratedAchievement: Achievement?
 
     init(preview: Bool = false) {
         let auth = AuthStore()
@@ -81,9 +85,11 @@ final class AppEnvironment: ObservableObject {
     }
 
     func refreshUserState() async {
-        guard auth.isSignedIn else { savedIds = []; placeStatuses = [:]; return }
+        guard auth.isSignedIn else { savedIds = []; placeStatuses = [:]; visitedPlaces = []; return }
         if let ids = try? await saved.savedIds() { savedIds = ids }
         if let st = try? await saved.statuses() { placeStatuses = st }
+        let visitedIds = placeStatuses.filter { $0.value == .visited }.map(\.key)
+        visitedPlaces = visitedIds.isEmpty ? [] : ((try? await places.byIds(visitedIds)) ?? visitedPlaces)
     }
 
     // MARK: City selection
@@ -173,12 +179,20 @@ final class AppEnvironment: ObservableObject {
         auth.signOut()
         entitlements.clear()
         await DiskCache.shared.clearAll()
-        savedIds = []; placeStatuses = [:]
+        savedIds = []; placeStatuses = [:]; visitedPlaces = []
     }
 
     func setStatus(_ placeId: String, _ status: PlaceUserStatus?) async {
         if let status { placeStatuses[placeId] = status } else { placeStatuses[placeId] = nil }
         if status == .visited { analytics.track(.placeVisited(placeId: placeId)) }
         try? await saved.setStatus(placeId: placeId, status: status)
+        let before = Set(achievements.filter(\.earned).map(\.id))
+        if status == .visited, !visitedPlaces.contains(where: { $0.id == placeId }),
+           let teaser = try? await places.byIds([placeId]).first {
+            visitedPlaces.append(teaser)
+            celebratedAchievement = achievements.first { $0.earned && !before.contains($0.id) }
+        } else if status != .visited {
+            visitedPlaces.removeAll { $0.id == placeId }
+        }
     }
 }

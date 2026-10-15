@@ -28,6 +28,9 @@ struct ProfileView: View {
                 }
             }
 
+            Section { SecretsPassport() } header: { Text("Your secrets") }
+                .listRowBackground(Theme.surface)
+
             Section("Personalize") {
                 Button { showOnboarding = true } label: { Label("Your interests", systemImage: "slider.horizontal.3") }
                 Picker(selection: $languageSelection) {
@@ -60,7 +63,7 @@ struct ProfileView: View {
             if auth.isSignedIn {
                 Section {
                     Button(role: .destructive) { showDeleteConfirm = true } label: { Label("Delete account", systemImage: "person.crop.circle.badge.xmark") }
-                    Button { auth.signOut(); env.entitlements.clear() } label: { Text("Sign out") }
+                    Button { auth.signOut(); env.entitlements.clear(); Task { await env.refreshUserState() } } label: { Text("Sign out") }
                 }
             }
 
@@ -145,5 +148,68 @@ struct PrivacyView: View {
                     .font(.footnote)
             }.foregroundStyle(Theme.textMuted).padding()
         }.background(Theme.bg).navigationTitle("Privacy")
+    }
+}
+
+/// The user's collection: how many secrets they've found, where, and the badges earned on the way.
+struct SecretsPassport: View {
+    @EnvironmentObject private var env: AppEnvironment
+    @EnvironmentObject private var auth: AuthStore
+
+    var body: some View {
+        let visited = env.visitedPlaces
+        let byCity = Dictionary(grouping: visited, by: { $0.cityId ?? "" })
+        let badges = env.achievements
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(spacing: 0) {
+                stat("\(visited.count)", "found")
+                stat("\(byCity.keys.filter { !$0.isEmpty }.count)", "cities")
+                stat("\(badges.filter(\.earned).count)/\(badges.count)", "badges")
+            }
+            if !auth.isSignedIn {
+                Text("Sign in and tap \u{201C}I've been here\u{201D} at a secret to start your collection.")
+                    .font(.caption).foregroundStyle(Theme.textMuted)
+            } else if visited.isEmpty {
+                Text("Tap \u{201C}I've been here\u{201D} when you find a secret — your cities and badges collect here.")
+                    .font(.caption).foregroundStyle(Theme.textMuted)
+            }
+            ForEach(byCity.keys.sorted(), id: \.self) { cityId in
+                if let city = env.cities.first(where: { $0.id == cityId }) {
+                    let p = env.progress(cityId: cityId)
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack {
+                            Text("\(env.country(for: city.countryId)?.emojiFlag ?? "") \(city.title)").font(.subheadline.weight(.semibold))
+                            Spacer()
+                            Text("\(p.found) of \(p.total)").font(.caption).foregroundStyle(Theme.accent)
+                        }
+                        ProgressView(value: Double(p.found), total: Double(max(p.total, 1))).tint(Theme.accent)
+                    }
+                }
+            }
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 92), spacing: 10, alignment: .top)], spacing: 12) {
+                ForEach(badges) { b in
+                    VStack(spacing: 6) {
+                        Image(systemName: b.symbol).font(.title3)
+                            .foregroundStyle(b.earned ? Color.black : Theme.textMuted.opacity(0.5))
+                            .frame(width: 46, height: 46)
+                            .background(b.earned ? Theme.accent : Theme.surface2, in: Circle())
+                        Text(b.title).font(.caption2.weight(.semibold)).multilineTextAlignment(.center)
+                            .foregroundStyle(b.earned ? Theme.text : Theme.textMuted)
+                        Text(b.detail).font(.system(size: 9)).foregroundStyle(Theme.textMuted).multilineTextAlignment(.center).lineLimit(2)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityValue(Text(b.earned ? "Earned" : "Not yet"))
+                }
+            }
+        }
+        .padding(.vertical, 6)
+    }
+
+    private func stat(_ value: String, _ label: LocalizedStringKey) -> some View {
+        VStack(spacing: 2) {
+            Text(value).font(Theme.display(26)).foregroundStyle(Theme.text)
+            Text(label).font(.caption).foregroundStyle(Theme.textMuted)
+        }.frame(maxWidth: .infinity)
     }
 }

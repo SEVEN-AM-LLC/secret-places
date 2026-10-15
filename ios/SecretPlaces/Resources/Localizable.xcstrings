@@ -260,7 +260,7 @@
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Безкоштовно сьогодні"
+            "value": "Сьогодні безкоштовно"
           }
         }
       }
@@ -1393,7 +1393,7 @@
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Оцінити цей секрет"
+            "value": "Оцінити секрет"
           }
         }
       }
@@ -2362,6 +2362,556 @@
           "stringUnit": {
             "state": "translated",
             "value": "50 Best"
+          }
+        }
+      }
+    },
+    "Good morning": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Доброго ранку"
+          }
+        }
+      }
+    },
+    "Good afternoon": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Добрий день"
+          }
+        }
+      }
+    },
+    "Good evening": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Добрий вечір"
+          }
+        }
+      }
+    },
+    "%@ this morning": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ цього ранку"
+          }
+        }
+      }
+    },
+    "%@ this afternoon": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ цього дня"
+          }
+        }
+      }
+    },
+    "%@ tonight": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ цього вечора"
+          }
+        }
+      }
+    },
+    "%@ after dark": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ після заходу сонця"
+          }
+        }
+      }
+    },
+    "%lld of %lld found": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Знайдено %1$lld з %2$lld"
+          }
+        }
+      }
+    },
+    "%lld secrets to find": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld секретів чекають"
+          }
+        }
+      }
+    },
+    "Secret of the day": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Секрет дня"
+          }
+        }
+      }
+    },
+    "Secret %@ unlocked": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Секрет %@ відкрито"
+          }
+        }
+      }
+    },
+    "Every secret in %@ is yours — %lld of them.": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Усі секрети міста %1$@ ваші — їх %2$lld."
+          }
+        }
+      }
+    },
+    "Walk me there": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Веди мене туди"
+          }
+        }
+      }
+    },
+    "See the full guide": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відкрити повний гід"
+          }
+        }
+      }
+    },
+    "Badge earned": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Новий бейдж"
+          }
+        }
+      }
+    },
+    "You've been here": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ви тут були"
+          }
+        }
+      }
+    },
+    "I've been here": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Я тут був(ла)"
+          }
+        }
+      }
+    },
+    "%lld of %lld secrets found in %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Знайдено %1$lld з %2$lld секретів у місті %3$@"
+          }
+        }
+      }
+    },
+    "Your secrets": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ваші секрети"
+          }
+        }
+      }
+    },
+    "found": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "знайдено"
+          }
+        }
+      }
+    },
+    "cities": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "міст"
+          }
+        }
+      }
+    },
+    "badges": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "бейджів"
+          }
+        }
+      }
+    },
+    "Sign in and tap “I've been here” at a secret to start your collection.": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Увійдіть і натисніть «Я тут був(ла)» біля секрету, щоб почати колекцію."
+          }
+        }
+      }
+    },
+    "Tap “I've been here” when you find a secret — your cities and badges collect here.": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Натискайте «Я тут був(ла)», коли знаходите секрет — тут збиратимуться ваші міста й бейджі."
+          }
+        }
+      }
+    },
+    "%lld of %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld з %2$lld"
+          }
+        }
+      }
+    },
+    "Earned": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отримано"
+          }
+        }
+      }
+    },
+    "Not yet": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ще ні"
+          }
+        }
+      }
+    },
+    "First secret": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перший секрет"
+          }
+        }
+      }
+    },
+    "Visit your first hidden place": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відвідайте перше приховане місце"
+          }
+        }
+      }
+    },
+    "Explorer": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дослідник"
+          }
+        }
+      }
+    },
+    "Visit 5 secrets": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відвідайте 5 секретів"
+          }
+        }
+      }
+    },
+    "Insider": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Свій"
+          }
+        }
+      }
+    },
+    "Visit 15 secrets": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відвідайте 15 секретів"
+          }
+        }
+      }
+    },
+    "Legend": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Легенда"
+          }
+        }
+      }
+    },
+    "Visit 50 secrets": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відвідайте 50 секретів"
+          }
+        }
+      }
+    },
+    "Honorary local": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Почесний місцевий"
+          }
+        }
+      }
+    },
+    "Visit 5 secrets in one city": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5 секретів в одному місті"
+          }
+        }
+      }
+    },
+    "Globetrotter": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Мандрівник"
+          }
+        }
+      }
+    },
+    "Find secrets in 3 cities": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Секрети у 3 містах"
+          }
+        }
+      }
+    },
+    "Night owl": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нічна сова"
+          }
+        }
+      }
+    },
+    "Visit 3 bars or night spots": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3 бари чи нічні місця"
+          }
+        }
+      }
+    },
+    "Head for heights": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Підкорювач висот"
+          }
+        }
+      }
+    },
+    "Visit 2 rooftops or viewpoints": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2 руфтопи чи оглядові точки"
+          }
+        }
+      }
+    },
+    "Coffee snob": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Кавовий гурман"
+          }
+        }
+      }
+    },
+    "Visit 3 coffee spots": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3 кав'ярні"
+          }
+        }
+      }
+    },
+    "Culture vulture": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Шукач культури"
+          }
+        }
+      }
+    },
+    "Visit 5 cultural or architectural sights": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5 культурних чи архітектурних місць"
+          }
+        }
+      }
+    },
+    "Starred table": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Зірковий стіл"
+          }
+        }
+      }
+    },
+    "Dine at a Michelin-recognised restaurant": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ресторан, відзначений Michelin"
+          }
+        }
+      }
+    },
+    "Sign in to collect the secrets you find and earn badges.": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Увійдіть, щоб збирати знайдені секрети й отримувати бейджі."
           }
         }
       }
