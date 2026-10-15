@@ -71,6 +71,22 @@ protocol ReportsRepository: Sendable {
     func report(placeId: String, reason: String, details: String?) async throws
 }
 
+/// A place a user suggests for their city. It goes to an editors' queue, never straight into the catalogue.
+struct PlaceSuggestion: Equatable, Sendable {
+    var cityId: String?
+    var title: String
+    var categorySlug: String?
+    var whySpecial: String
+    var tips: String?
+    var address: String?
+    var lat: Double?
+    var lng: Double?
+}
+
+protocol SuggestionsRepository: Sendable {
+    func submit(_ suggestion: PlaceSuggestion) async throws
+}
+
 protocol EventsRepository: Sendable {
     func upcoming(cityId: String?, limit: Int) async throws -> [EventItem]
 }

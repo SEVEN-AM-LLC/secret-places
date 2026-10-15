@@ -1938,6 +1938,7 @@
       }
     },
     "City pass": {
+      "extractionState": "manual",
       "localizations": {
         "uk": {
           "stringUnit": {
@@ -1948,6 +1949,7 @@
       }
     },
     "Unlock all of %@ · %@": {
+      "extractionState": "manual",
       "localizations": {
         "uk": {
           "stringUnit": {
@@ -1958,6 +1960,7 @@
       }
     },
     "One pass unlocks every secret place in %@.": {
+      "extractionState": "manual",
       "localizations": {
         "uk": {
           "stringUnit": {
@@ -1968,6 +1971,7 @@
       }
     },
     "Choose a city": {
+      "extractionState": "manual",
       "localizations": {
         "uk": {
           "stringUnit": {
@@ -1978,6 +1982,7 @@
       }
     },
     "Use my location": {
+      "extractionState": "manual",
       "localizations": {
         "uk": {
           "stringUnit": {
@@ -1988,6 +1993,7 @@
       }
     },
     "Other cities": {
+      "extractionState": "manual",
       "localizations": {
         "uk": {
           "stringUnit": {
@@ -1998,6 +2004,7 @@
       }
     },
     "%lld secrets": {
+      "extractionState": "manual",
       "localizations": {
         "uk": {
           "stringUnit": {
@@ -2008,6 +2015,7 @@
       }
     },
     "We couldn't find a covered city near you. Pick one below — more cities are on the way.": {
+      "extractionState": "manual",
       "localizations": {
         "uk": {
           "stringUnit": {
@@ -2018,6 +2026,7 @@
       }
     },
     "City or country": {
+      "extractionState": "manual",
       "localizations": {
         "uk": {
           "stringUnit": {
@@ -2028,6 +2037,7 @@
       }
     },
     "City: %@": {
+      "extractionState": "manual",
       "localizations": {
         "uk": {
           "stringUnit": {
@@ -2038,11 +2048,276 @@
       }
     },
     "Choose a different city": {
+      "extractionState": "manual",
       "localizations": {
         "uk": {
           "stringUnit": {
             "state": "translated",
             "value": "Обрати інше місто"
+          }
+        }
+      }
+    },
+    "Suggest a place": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Запропонувати місце"
+          }
+        }
+      }
+    },
+    "Send": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Надіслати"
+          }
+        }
+      }
+    },
+    "Sign in to suggest places — we'll let you know when yours goes live.": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Увійдіть, щоб пропонувати місця — ми повідомимо, коли ваше з'явиться в застосунку."
+          }
+        }
+      }
+    },
+    "Name of the place": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Назва місця"
+          }
+        }
+      }
+    },
+    "Category": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Категорія"
+          }
+        }
+      }
+    },
+    "Not sure": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не знаю"
+          }
+        }
+      }
+    },
+    "In %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У місті %@"
+          }
+        }
+      }
+    },
+    "Why is it special?": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Чим воно особливе?"
+          }
+        }
+      }
+    },
+    "What makes it worth finding?": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Чому його варто шукати?"
+          }
+        }
+      }
+    },
+    "Address or how to find it (optional)": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Адреса або як знайти (необов'язково)"
+          }
+        }
+      }
+    },
+    "Tips: best time, what to order… (optional)": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поради: коли йти, що замовити… (необов'язково)"
+          }
+        }
+      }
+    },
+    "I'm there now": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Я зараз там"
+          }
+        }
+      }
+    },
+    "Where is it?": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Де це?"
+          }
+        }
+      }
+    },
+    "Move the map so the pin sits on the place.": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Посуньте мапу, щоб шпилька була на місці."
+          }
+        }
+      }
+    },
+    "Our editors check every suggestion before it appears in the app. Please don't send private homes or places that aren't open to visitors.": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Редактори перевіряють кожну пропозицію, перш ніж вона з'явиться в застосунку. Не надсилайте приватні будинки чи місця, закриті для відвідувачів."
+          }
+        }
+      }
+    },
+    "Know a hidden spot?": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Знаєте приховане місце?"
+          }
+        }
+      }
+    },
+    "Sign in to suggest it. Editors review every place before it's added.": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Увійдіть, щоб запропонувати його. Редактори перевіряють кожне місце перед додаванням."
+          }
+        }
+      }
+    },
+    "Thank you!": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дякуємо!"
+          }
+        }
+      }
+    },
+    "Our editors will take a look. If it's a real secret, it'll show up in %@.": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Редактори подивляться. Якщо це справжній секрет, він з'явиться в місті %@."
+          }
+        }
+      }
+    },
+    "the app": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "застосунку"
+          }
+        }
+      }
+    },
+    "That's a lot of secrets for one day — try again tomorrow.": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Забагато секретів за один день — спробуйте завтра."
+          }
+        }
+      }
+    },
+    "Couldn't send right now. Please try again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не вдалося надіслати. Спробуйте ще раз."
+          }
+        }
+      }
+    },
+    "Know a secret in %@?": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Знаєте секрет у місті %@?"
+          }
+        }
+      }
+    },
+    "Suggest a place — our editors check every one.": {
+      "extractionState": "manual",
+      "localizations": {
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Запропонуйте місце — редактори перевіряють кожне."
           }
         }
       }

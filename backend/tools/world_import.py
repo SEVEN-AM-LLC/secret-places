@@ -16,6 +16,8 @@ com.secretplaces.city.<slug>.
 Usage:
   python3 backend/tools/world_import.py OUT.sql [city-slug ...]          # default: all CITIES
   python3 backend/tools/world_import.py --draft OUT.sql [city-slug ...]  # EUROPE_2 as drafts
+  python3 backend/tools/world_import.py --deepen OUT.sql [city-slug ...] # every city again: only new places are added,
+                                                                         # each keeps its city's status (published/draft)
 Data © OpenStreetMap contributors (ODbL).
 """
 import hashlib, json, re, sys, time, unicodedata, urllib.parse, urllib.request
@@ -48,7 +50,10 @@ CITIES = [
     ("georgia", "Georgia", "🇬🇪", "tbilisi", "Tbilisi", 41.7151, 44.8271),
 ]
 
-# Second wave — imported as drafts until their city passes are approved (--draft).
+# Later waves are imported as drafts until their city passes are approved:
+#   --draft            EUROPE_2
+#   --draft=world3     WORLD_3 (Asia + Americas)
+#   --draft=world4     WORLD_4 (Africa + Australia/Oceania)
 EUROPE_2 = [
     ("austria", "Austria", "🇦🇹", "vienna", "Vienna", 48.2082, 16.3738),
     ("hungary", "Hungary", "🇭🇺", "budapest", "Budapest", 47.4979, 19.0402),
@@ -76,13 +81,73 @@ EUROPE_2 = [
     ("germany", "Germany", "🇩🇪", "hamburg", "Hamburg", 53.5511, 9.9937),
 ]
 
+WORLD_3 = [
+    ("japan", "Japan", "🇯🇵", "tokyo", "Tokyo", 35.6762, 139.6503),
+    ("japan", "Japan", "🇯🇵", "kyoto", "Kyoto", 35.0116, 135.7681),
+    ("japan", "Japan", "🇯🇵", "osaka", "Osaka", 34.6937, 135.5023),
+    ("south-korea", "South Korea", "🇰🇷", "seoul", "Seoul", 37.5665, 126.9780),
+    ("taiwan", "Taiwan", "🇹🇼", "taipei", "Taipei", 25.0330, 121.5654),
+    ("hong-kong", "Hong Kong", "🇭🇰", "hong-kong", "Hong Kong", 22.2819, 114.1580),
+    ("singapore", "Singapore", "🇸🇬", "singapore", "Singapore", 1.2903, 103.8520),
+    ("thailand", "Thailand", "🇹🇭", "bangkok", "Bangkok", 13.7563, 100.5018),
+    ("malaysia", "Malaysia", "🇲🇾", "kuala-lumpur", "Kuala Lumpur", 3.1390, 101.6869),
+    ("vietnam", "Vietnam", "🇻🇳", "hanoi", "Hanoi", 21.0285, 105.8542),
+    ("vietnam", "Vietnam", "🇻🇳", "ho-chi-minh-city", "Ho Chi Minh City", 10.7769, 106.7009),
+    ("india", "India", "🇮🇳", "mumbai", "Mumbai", 18.9388, 72.8354),
+    ("united-arab-emirates", "United Arab Emirates", "🇦🇪", "dubai", "Dubai", 25.2048, 55.2708),
+    ("united-states", "United States", "🇺🇸", "new-york", "New York", 40.7306, -73.9866),
+    ("united-states", "United States", "🇺🇸", "los-angeles", "Los Angeles", 34.0522, -118.2437),
+    ("united-states", "United States", "🇺🇸", "san-francisco", "San Francisco", 37.7749, -122.4194),
+    ("united-states", "United States", "🇺🇸", "chicago", "Chicago", 41.8781, -87.6298),
+    ("united-states", "United States", "🇺🇸", "miami", "Miami", 25.7617, -80.1918),
+    ("united-states", "United States", "🇺🇸", "new-orleans", "New Orleans", 29.9511, -90.0715),
+    ("united-states", "United States", "🇺🇸", "austin", "Austin", 30.2672, -97.7431),
+    ("canada", "Canada", "🇨🇦", "toronto", "Toronto", 43.6532, -79.3832),
+    ("canada", "Canada", "🇨🇦", "montreal", "Montréal", 45.5019, -73.5674),
+    ("canada", "Canada", "🇨🇦", "vancouver", "Vancouver", 49.2827, -123.1207),
+    ("mexico", "Mexico", "🇲🇽", "mexico-city", "Mexico City", 19.4326, -99.1332),
+    ("argentina", "Argentina", "🇦🇷", "buenos-aires", "Buenos Aires", -34.6037, -58.3816),
+    ("brazil", "Brazil", "🇧🇷", "sao-paulo", "São Paulo", -23.5505, -46.6333),
+    ("brazil", "Brazil", "🇧🇷", "rio-de-janeiro", "Rio de Janeiro", -22.9068, -43.1729),
+    ("colombia", "Colombia", "🇨🇴", "bogota", "Bogotá", 4.7110, -74.0721),
+    ("peru", "Peru", "🇵🇪", "lima", "Lima", -12.0464, -77.0428),
+    ("chile", "Chile", "🇨🇱", "santiago", "Santiago", -33.4489, -70.6693),
+]
+WORLD_4 = [
+    ("morocco", "Morocco", "🇲🇦", "marrakesh", "Marrakesh", 31.6295, -7.9811),
+    ("morocco", "Morocco", "🇲🇦", "casablanca", "Casablanca", 33.5731, -7.5898),
+    ("morocco", "Morocco", "🇲🇦", "fes", "Fes", 34.0644, -4.9733),
+    ("egypt", "Egypt", "🇪🇬", "cairo", "Cairo", 30.0444, 31.2357),
+    ("tunisia", "Tunisia", "🇹🇳", "tunis", "Tunis", 36.8065, 10.1815),
+    ("south-africa", "South Africa", "🇿🇦", "cape-town", "Cape Town", -33.9249, 18.4241),
+    ("south-africa", "South Africa", "🇿🇦", "johannesburg", "Johannesburg", -26.2041, 28.0473),
+    ("south-africa", "South Africa", "🇿🇦", "durban", "Durban", -29.8587, 31.0218),
+    ("kenya", "Kenya", "🇰🇪", "nairobi", "Nairobi", -1.2864, 36.8172),
+    ("tanzania", "Tanzania", "🇹🇿", "zanzibar", "Zanzibar City", -6.1659, 39.2026),
+    ("nigeria", "Nigeria", "🇳🇬", "lagos", "Lagos", 6.4541, 3.3947),
+    ("ghana", "Ghana", "🇬🇭", "accra", "Accra", 5.6037, -0.1870),
+    ("senegal", "Senegal", "🇸🇳", "dakar", "Dakar", 14.7167, -17.4677),
+    ("rwanda", "Rwanda", "🇷🇼", "kigali", "Kigali", -1.9441, 30.0619),
+    ("australia", "Australia", "🇦🇺", "sydney", "Sydney", -33.8688, 151.2093),
+    ("australia", "Australia", "🇦🇺", "melbourne", "Melbourne", -37.8136, 144.9631),
+    ("australia", "Australia", "🇦🇺", "brisbane", "Brisbane", -27.4698, 153.0251),
+    ("australia", "Australia", "🇦🇺", "perth", "Perth", -31.9523, 115.8613),
+    ("australia", "Australia", "🇦🇺", "adelaide", "Adelaide", -34.9285, 138.6007),
+    ("australia", "Australia", "🇦🇺", "hobart", "Hobart", -42.8821, 147.3272),
+    ("new-zealand", "New Zealand", "🇳🇿", "auckland", "Auckland", -36.8485, 174.7633),
+    ("new-zealand", "New Zealand", "🇳🇿", "wellington", "Wellington", -41.2865, 174.7762),
+    ("new-zealand", "New Zealand", "🇳🇿", "queenstown", "Queenstown", -45.0312, 168.6626),
+]
+
+
 # kind -> (category slug, cap per city)
 KINDS = {
-    "speakeasy": ("bars", 15), "rooftop": ("rooftops", 8), "night": ("night", 8), "viewpoint": ("viewpoints", 10),
-    "historic": ("architecture", 12), "landmark": ("culture", 8), "mural": ("culture", 8), "garden": ("walks", 8),
-    "coffee": ("coffee", 12),
+    "speakeasy": ("bars", 20), "rooftop": ("rooftops", 10), "night": ("night", 10), "viewpoint": ("viewpoints", 12),
+    "historic": ("architecture", 15), "landmark": ("culture", 10), "mural": ("culture", 10), "garden": ("walks", 8),
+    "coffee": ("coffee", 15), "food": ("food_drink", 10), "pub": ("bars", 6), "museum": ("culture", 8),
+    "market": ("food_drink", 5), "books": ("culture", 5), "beach": ("beaches", 6), "park": ("nature", 6),
 }
-PAID_KINDS = {"speakeasy", "rooftop", "night"}
+PAID_KINDS = {"speakeasy", "rooftop", "night", "food", "pub"}
 
 TEASERS = {
     "speakeasy": (["A drink behind an unmarked door", "A bar the regulars keep quiet about", "A low-lit room that doesn't advertise",
@@ -125,6 +190,35 @@ TEASERS = {
                ["Trees, a path, and room to breathe five minutes from the noise.",
                 "Come with a coffee and stay longer than you planned.",
                 "Enough green to forget you're in the middle of the city."]),
+    "food": (["A table the locals book for themselves", "A kitchen with a long local story", "The dinner spot friends send friends to",
+              "A dining room older than the guidebooks"],
+             ["Order what the next table is having — they've been coming for years.",
+              "Go hungry, and go without a plan.",
+              "A place the city has quietly kept for itself."]),
+    "pub": (["A pub with more history than its sign", "A bar the city grew up around", "A local that has outlived its rivals"],
+            ["Worn wood, old stories and a regular in every corner.",
+             "Come for one, stay for the stories.",
+             "The kind of room that remembers everyone who's been."]),
+    "museum": (["A small museum most visitors skip", "A collection the city keeps quiet about", "A museum for the curious, not the crowds"],
+               ["Room after room of things you didn't know you wanted to see.",
+                "Quiet halls, odd treasures, and almost nobody else.",
+                "An hour here tells you more than a day of sightseeing."]),
+    "market": (["A market where the city shops", "Stalls, smells and a morning well spent", "The market locals actually use"],
+               ["Come early, bring cash, and follow the longest queue.",
+                "Eat as you go — it's the point.",
+                "Loud, fresh and very much alive."]),
+    "books": (["A bookshop to lose an afternoon in", "Shelves worth the detour", "A bookshop with a personality"],
+              ["Narrow aisles, good taste, and nobody rushing you out.",
+               "Browse slowly — the best finds are on the bottom shelf.",
+               "A quiet corner of the city made of paper."]),
+    "beach": (["A stretch of sand the crowds skip", "A beach for the end of the day", "Where the city meets the water"],
+              ["Bring a towel and lose track of time.",
+               "Come at sunset when the day-trippers leave.",
+               "Close enough to reach on a whim, far enough to forget the city."]),
+    "park": (["A park bigger than it looks from the gate", "Green space the city breathes through", "A long walk under old trees"],
+             ["Paths that wander, benches that wait, and room to think.",
+              "Pack a lunch and let the afternoon go.",
+              "The city goes quiet the moment you step inside."]),
     "coffee": (["A specialty coffee spot down a side street", "The pour-over place friends whisper about",
                 "A tiny café that takes coffee seriously"],
                ["A few seats, a good roast, and mornings that stretch.",
@@ -156,11 +250,14 @@ SELECTORS = [  # one light query each; a single combined query times out on big 
     'node["rooftop"="yes"]["name"]', 'node["amenity"="cafe"]["cuisine"~"coffee"]["name"]',
     'node["tourism"="artwork"]["artwork_type"="mural"]["name"]', 'node["historic"]["name"]["wikidata"]',
     'node["leisure"="garden"]["name"]', 'node["tourism"="attraction"]["name"]["wikidata"]',
+    'node["amenity"="restaurant"]["name"]["wikidata"]', 'node["amenity"="pub"]["name"]["wikidata"]',
+    'nwr["tourism"="museum"]["name"]', 'nwr["amenity"="marketplace"]["name"]', 'node["shop"="books"]["name"]',
+    'nwr["natural"="beach"]["name"]', 'way["leisure"="park"]["name"]["wikidata"]',
 ]
 
 
 def overpass_one(sel: str, lat: float, lng: float) -> list[dict] | None:
-    q = f"[out:json][timeout:60];{sel}(around:{RADIUS},{lat},{lng});out body 400;"
+    q = f"[out:json][timeout:60];{sel}(around:{RADIUS},{lat},{lng});out center 400;"
     data = urllib.parse.urlencode({"data": q}).encode()
     for attempt in range(4):
         for m in MIRRORS:
@@ -182,6 +279,9 @@ def overpass(lat: float, lng: float) -> list[dict]:
         if els is None:
             failed += 1
             continue
+        for e in els:   # ways/relations come back with a centre point
+            if "lat" not in e and "center" in e:
+                e["lat"], e["lon"] = e["center"]["lat"], e["center"]["lon"]
         out += [e for e in els if e.get("tags", {}).get("name") and "lat" in e]
         time.sleep(1)
     if failed > len(SELECTORS) // 2:   # mostly failed: report nothing rather than a lopsided city
@@ -198,6 +298,10 @@ def kind_of(t: dict) -> str | None:
         return "rooftop"
     if t.get("amenity") == "bar" and (SPEAKEASY_RX.search(blob) or t.get("cocktails") == "yes" or t.get("drink:cocktail") in ("yes", "served")):
         return "speakeasy"
+    if t.get("amenity") == "pub" and t.get("wikidata"):
+        return "pub"
+    if t.get("amenity") == "restaurant" and t.get("wikidata"):
+        return "food"
     if t.get("tourism") == "viewpoint":
         return "viewpoint"
     if t.get("tourism") == "artwork":
@@ -206,6 +310,16 @@ def kind_of(t: dict) -> str | None:
         return "historic"
     if t.get("tourism") == "attraction" and t.get("wikidata"):
         return "landmark"
+    if t.get("tourism") == "museum":
+        return "museum"
+    if t.get("amenity") == "marketplace":
+        return "market"
+    if t.get("shop") == "books":
+        return "books"
+    if t.get("natural") == "beach":
+        return "beach"
+    if t.get("leisure") == "park":
+        return "park"
     if t.get("leisure") == "garden":
         return "garden"
     if t.get("amenity") == "cafe":
@@ -239,6 +353,8 @@ def pick(elements: list[dict], city_slug: str) -> list[tuple[str, dict]]:
 
 
 STATUS = "published"
+DEEPEN = False
+KYIV = ("ukraine", "Ukraine", "🇺🇦", "kyiv", "Kyiv", 50.4501, 30.5234)
 
 
 def city_sql(c) -> tuple[list[str], int, int]:
@@ -252,10 +368,15 @@ def city_sql(c) -> tuple[list[str], int, int]:
            f"insert into public.countries (slug,name,emoji_flag) values ('{country_slug}','{esc(country_name)}','{flag}') on conflict (slug) do nothing;",
            f"insert into public.cities (country_id,slug,title,lat,lng,is_outside_city) values ({country},'{cslug}','{esc(ctitle)}',{clat},{clng},false) "
            f"on conflict (country_id,slug) do nothing;"]
+    status_sql = (f"(select case when exists (select 1 from public.places where city_id={city} and status='published') "
+                  f"then 'published' else 'draft' end)") if DEEPEN else f"'{STATUS}'"
     vals, paid_n = [], 0
     for i, (k, e) in enumerate(picked):
-        t = e["tags"]; name = t["name"]; lat, lng = e["lat"], e["lon"]
-        slug = f"{cslug}-{slugify(name) or k}-{hashlib.md5(str(e['id']).encode()).hexdigest()[:6]}"
+        t = e["tags"]; lat, lng = e["lat"], e["lon"]
+        # Prefer the English name where the local one isn't Latin script (Tokyo, Seoul, Bangkok…).
+        local, en = t["name"], t.get("name:en")
+        name = f"{en} ({local})" if en and en != local and not local.isascii() and not slugify(local) else local
+        slug = f"{cslug}-{slugify(en or local) or k}-{hashlib.md5(str(e['id']).encode()).hexdigest()[:6]}"
         titles, descs = TEASERS[k]
         tt, td = titles[h(slug) % len(titles)], descs[h(slug + 'd') % len(descs)]
         paid = k in PAID_KINDS or (k == "viewpoint" and h(slug + "p") % 3 == 0)
@@ -266,8 +387,9 @@ def city_sql(c) -> tuple[list[str], int, int]:
         fd = f"{name}. " + (f"Find it at {addr}. " if t.get("addr:street") else f"In {ctitle}. ") + (f"Hours: {oh}. " if oh else "") + "Data © OpenStreetMap contributors."
         featured = "true" if (k in ("speakeasy", "viewpoint", "rooftop") and h(slug + "f") % 6 == 0) else "false"
         editors = "true" if quality(t) >= 4 and h(slug + "e") % 3 == 0 else "false"
-        best_time = {"night": "night", "speakeasy": "evening", "rooftop": "sunset", "viewpoint": "sunset", "coffee": "morning", "landmark": "morning"}.get(k, "afternoon")
-        duration = {"night": 240, "speakeasy": 90, "rooftop": 90, "coffee": 45}.get(k, 60)
+        best_time = {"night": "night", "speakeasy": "evening", "rooftop": "sunset", "viewpoint": "sunset", "coffee": "morning", "landmark": "morning",
+                     "food": "evening", "pub": "evening", "market": "morning", "beach": "sunset"}.get(k, "afternoon")
+        duration = {"night": 240, "speakeasy": 90, "rooftop": 90, "coffee": 45, "food": 90, "pub": 90, "beach": 120, "books": 45}.get(k, 60)
         q = lambda v: f"'{esc(v)}'" if v else "null"
         vals.append(f"('{slug}','{esc(tt)}','{esc(td)}','{esc(name)}','{esc(fd)}',{lat},{lng},{round(lat, 2)},{round(lng, 2)},"
                     f"'{esc(addr)}','{esc(name)}',{q(website)},{q(oh)},'{KINDS[k][0]}','{'paid' if paid else 'free'}',"
@@ -281,7 +403,7 @@ def city_sql(c) -> tuple[list[str], int, int]:
         "(case when v.oh is null then null else jsonb_build_object('raw',v.oh) end),"
         "'From the nearest stop it''s a short walk — look for the entrance, not a sign.',"
         "'https://maps.apple.com/?ll='||v.lat||','||v.lng,'https://www.google.com/maps/search/?api=1&query='||v.lat||','||v.lng,"
-        f"{country},{city},(select id from public.categories where slug=v.cat),v.access,v.price,null,'{STATUS}',v.featured,v.editors,"
+        f"{country},{city},(select id from public.categories where slug=v.cat),v.access,v.price,null,{status_sql},v.featured,v.editors,"
         "15,'walk',v.best,'all year',v.dur,'medium',2,'good','openstreetmap',v.sref\nfrom (values\n" + ",\n".join(vals) +
         "\n) v(slug,tt,td,ft,fd,lat,lng,alat,alng,addr,biz,ws,oh,cat,access,price,featured,editors,best,dur,sref)\non conflict (slug) do nothing;")
     if paid_n:
@@ -292,8 +414,12 @@ def city_sql(c) -> tuple[list[str], int, int]:
 
 if __name__ == "__main__":
     args = sys.argv[1:]
-    if "--draft" in args:          # second-wave cities: hidden until their passes are approved
-        args.remove("--draft"); STATUS = "draft"; CITIES = EUROPE_2
+    waves = {"--draft": EUROPE_2, "--draft=world3": WORLD_3, "--draft=world4": WORLD_4}   # later waves stay hidden until their passes are approved
+    for flag, wave in waves.items():
+        if flag in args:
+            args.remove(flag); STATUS = "draft"; CITIES = wave
+    if "--deepen" in args:      # all cities again; on conflict (slug) keeps what's there
+        args.remove("--deepen"); DEEPEN = True; CITIES = [KYIV] + CITIES + EUROPE_2 + WORLD_3 + WORLD_4
     out_path = args[0] if args else "world_seed.sql"
     only = set(args[1:])
     lines = ["-- Generated by backend/tools/world_import.py — real places from OpenStreetMap (ODbL), © OpenStreetMap contributors."]

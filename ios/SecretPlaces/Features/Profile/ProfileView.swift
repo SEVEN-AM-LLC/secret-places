@@ -64,7 +64,7 @@ struct ProfileView: View {
                 }
             }
 
-            Section { Text("Secret Places v1.0").font(.caption).foregroundStyle(.secondary) }
+            Section { Text("Secret Places v1.0.1").font(.caption).foregroundStyle(.secondary) }
         }
         .scrollContentBackground(.hidden)
         .background(Theme.bg)

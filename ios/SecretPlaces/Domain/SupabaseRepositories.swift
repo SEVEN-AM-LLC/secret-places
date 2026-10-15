@@ -189,6 +189,23 @@ final class SupabaseReportsRepository: ReportsRepository {
     }
 }
 
+final class SupabaseSuggestionsRepository: SuggestionsRepository {
+    private let client: SupabaseClient
+    private let session: TokenHolder
+    init(client: SupabaseClient, session: TokenHolder) { self.client = client; self.session = session }
+    func submit(_ s: PlaceSuggestion) async throws {
+        guard let uid = session.userId else { throw AppError.notAuthenticated }
+        struct Body: Encodable {
+            let userId: String; let cityId: String?; let title: String; let categorySlug: String?
+            let whySpecial: String; let tips: String?; let address: String?; let lat: Double?; let lng: Double?
+        }
+        struct Row: Decodable { let id: String? }
+        _ = try await client.insert("submissions", body: [Body(userId: uid, cityId: s.cityId, title: s.title, categorySlug: s.categorySlug,
+                                                               whySpecial: s.whySpecial, tips: s.tips, address: s.address,
+                                                               lat: s.lat, lng: s.lng)], as: [Row].self)
+    }
+}
+
 // MARK: - Events
 
 final class SupabaseEventsRepository: EventsRepository {

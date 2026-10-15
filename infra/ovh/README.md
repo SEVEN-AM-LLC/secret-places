@@ -50,3 +50,13 @@ Events refresh every 6 h via `pg_cron` → `http://api-gw:8000/functions/v1/sync
 `sync_events_secret`, `events_sync_anon`).
 
 Backups: not configured yet — add a nightly `pg_dump` off-box before launch.
+
+## Moderating "Suggest a place"
+
+Suggestions from the app land in `public.submissions` (`state = 'submitted'`); nothing is published automatically.
+
+```bash
+ssh ubuntu@51.195.148.252 "sudo docker exec supabase-db psql -U postgres -c \"select s.created_at, c.title city, s.title, s.category_slug, s.why_special, s.address, s.lat, s.lng from submissions s left join cities c on c.id = s.city_id where s.state = 'submitted' order by s.created_at\""
+```
+
+Review it, add good ones to `public.places` by hand (or a migration), then set `state` to `approved` / `rejected`.

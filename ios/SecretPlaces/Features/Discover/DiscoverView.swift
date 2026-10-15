@@ -42,6 +42,7 @@ struct DiscoverView: View {
     @StateObject private var vm = DiscoverViewModel()
     @State private var showSearch = false
     @State private var showCityPicker = false
+    @State private var showSuggest = false
 
     var body: some View {
         ScrollView {
@@ -62,6 +63,7 @@ struct DiscoverView: View {
                     rail("Editor's picks", vm.editors)
                     rail("Newly added", vm.newest)
                 }
+                suggestCard
             }
             .padding(.vertical, 8)
         }
@@ -69,11 +71,16 @@ struct DiscoverView: View {
         .navigationTitle("Discover")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
+                Button { showSuggest = true } label: { Image(systemName: "plus.circle") }
+                    .accessibilityLabel(Text("Suggest a place"))
+            }
+            ToolbarItem(placement: .topBarTrailing) {
                 Button { showSearch = true } label: { Image(systemName: "magnifyingglass") }
             }
         }
         .sheet(isPresented: $showSearch) { NavigationStack { SearchView() } }
         .sheet(isPresented: $showCityPicker) { CityPickerView() }
+        .sheet(isPresented: $showSuggest) { SuggestPlaceView() }
         .withAppDestinations()
         .task(id: env.selectedCityId) {
             await vm.load(env, cityId: env.selectedCityId)
@@ -97,6 +104,25 @@ struct DiscoverView: View {
         .padding(.horizontal, 14)
         .accessibilityLabel(Text("City: \(env.selectedCity?.title ?? "")"))
         .accessibilityHint(Text("Choose a different city"))
+    }
+
+    private var suggestCard: some View {
+        Button { showSuggest = true } label: {
+            HStack(spacing: 14) {
+                Image(systemName: "mappin.and.ellipse").font(.title2).foregroundStyle(Theme.accent)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(env.selectedCity.map { String(localized: "Know a secret in \($0.title)?") } ?? String(localized: "Know a hidden spot?"))
+                        .font(.headline).foregroundStyle(Theme.text)
+                    Text("Suggest a place — our editors check every one.").font(.subheadline).foregroundStyle(Theme.textMuted)
+                }
+                Spacer()
+                Image(systemName: "chevron.right").font(.footnote.weight(.bold)).foregroundStyle(Theme.textMuted)
+            }
+            .padding(16)
+            .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.corner))
+        }
+        .buttonStyle(.plain)
+        .padding(.horizontal, 14)
     }
 
     private var categoryChips: some View {

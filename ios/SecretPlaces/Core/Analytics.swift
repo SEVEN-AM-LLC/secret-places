@@ -18,6 +18,7 @@ enum AnalyticsEvent: Equatable {
     case collectionOpened(slug: String)
     case shareStarted(kind: String)
     case locationPermissionResult(granted: Bool)
+    case suggestPlace
 
     var name: String {
         switch self {
@@ -37,6 +38,7 @@ enum AnalyticsEvent: Equatable {
         case .collectionOpened: return "collection_opened"
         case .shareStarted: return "share_started"
         case .locationPermissionResult: return "location_permission_result"
+        case .suggestPlace: return "suggest_place"
         }
     }
 }
