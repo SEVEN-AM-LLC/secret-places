@@ -5,7 +5,10 @@ import { crypto as stdCrypto } from "jsr:@std/crypto@1";
 // Optional arg: image path (default ./review.png); only IAPs without a review screenshot get one.
 const file = await Deno.readFile(Deno.args[0] ?? new URL("./review.png", import.meta.url));
 const md5 = Array.from(new Uint8Array(await stdCrypto.subtle.digest("MD5", file))).map((b) => b.toString(16).padStart(2, "0")).join("");
-const iaps = (await api("GET", "/v1/apps/6822694406/inAppPurchasesV2?limit=200&fields[inAppPurchases]=productId,state")).data;
+const iaps: any[] = [];
+for (let next: string | undefined = "/v1/apps/6822694406/inAppPurchasesV2?limit=200&fields[inAppPurchases]=productId,state"; next; ) {
+  const r = await api("GET", next); iaps.push(...r.data); next = r.links?.next;
+}
 for (const i of iaps) {
   try {
     const cur = await api("GET", `/v2/inAppPurchases/${i.id}/appStoreReviewScreenshot`).catch(() => null);

@@ -2,6 +2,9 @@
 // so App Store product IDs always match what verify-purchase looks up.
 // Idempotent: products that already exist are completed, not duplicated.
 // Run: SUPABASE_ANON_KEY=... deno run --allow-read --allow-env --allow-net create_iaps.ts [productId]
+// Draft-wave city passes (cities are hidden from anon until they have published places):
+//   CITY_PASSES_JSON=passes.json deno run ... create_iaps.ts   — creates only those passes; the file is
+//   [{slug,title,pass_product_id,pass_price_cents}] exported from the DB over SSH.
 // Auth: ASC API key AuthKey_<KEY_ID>.p8 in ~/.appstoreconnect/private_keys (see asc.ts).
 import { api } from "./asc.ts";
 const APP = "6822694406";
@@ -13,9 +16,11 @@ const only = Deno.args[0]; // optional productId filter for a dry single run
 // App Store product IDs allow only [A-Za-z0-9_.]; the DB is migrated to the same form (0029).
 const appleId = (id: string) => id.replace(/-/g, "_");
 type P = { productId: string; ref: string; name: string; desc: string; price: string };
-const places = await sb("places_public?select=slug,product_id,price_cents&access_type=eq.paid&product_id=not.is.null");
-const cities = await sb("cities?select=slug,title,pass_product_id,pass_price_cents&pass_product_id=not.is.null");
-const routes = await sb("routes_public?select=slug,title,product_id,price_cents,is_free&is_free=eq.false");
+const passesFile = Deno.env.get("CITY_PASSES_JSON");
+const places = passesFile ? [] : await sb("places_public?select=slug,product_id,price_cents&access_type=eq.paid&product_id=not.is.null");
+const cities = passesFile ? JSON.parse(await Deno.readTextFile(passesFile))
+  : await sb("cities?select=slug,title,pass_product_id,pass_price_cents&pass_product_id=not.is.null");
+const routes = passesFile ? [] : await sb("routes_public?select=slug,title,product_id,price_cents,is_free&is_free=eq.false");
 const cut = (s: string, n: number) => (s.length <= n ? s : s.slice(0, n - 1).trimEnd() + "…");
 const products: P[] = [
   ...places.map((p: any) => ({ productId: p.product_id, ref: cut(`Place — ${p.slug}`, 64),
@@ -35,7 +40,11 @@ for (let next: string | undefined = "/v1/territories?limit=200"; next; ) {
 console.log(`territories: ${territories.length}`);
 
 const existing = new Map<string, string>();
-for (const i of (await api("GET", `/v1/apps/${APP}/inAppPurchasesV2?limit=200`)).data) existing.set(i.attributes.productId, i.id);
+for (let next: string | undefined = `/v1/apps/${APP}/inAppPurchasesV2?limit=200`; next; ) {
+  const r = await api("GET", next);
+  for (const i of r.data) existing.set(i.attributes.productId, i.id);
+  next = r.links?.next;
+}
 
 async function usdPricePoint(iapId: string, price: string): Promise<string> {
   for (let next: string | undefined = `/v2/inAppPurchases/${iapId}/pricePoints?filter[territory]=USA&limit=200`; next; ) {
