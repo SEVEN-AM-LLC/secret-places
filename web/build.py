@@ -5,10 +5,10 @@ from pathlib import Path
 
 HERE = Path(__file__).parent
 CONTACT = "hello@7am.agency"
-UPDATED_EN, UPDATED_UK = "14 October 2026", "14 жовтня 2026"
+UPDATED_EN, UPDATED_UK = "22 October 2026", "22 жовтня 2026"
 
 def page(slug, title_en, title_uk, desc, body):
-    nav = [("index", "Home", "Головна", "/"), ("privacy", "Privacy", "Приватність", "/privacy"), ("support", "Support", "Підтримка", "/support")]
+    nav = [("index", "Home", "Головна", "/"), ("privacy", "Privacy", "Приватність", "/privacy"), ("support", "Support", "Підтримка", "/support"), ("terms", "Terms", "Умови", "/terms")]
     links = "".join(
         f'<a href="{href}"{" aria-current=\"page\"" if s == slug else ""}><span lang="en">{en}</span><span lang="uk">{uk}</span></a>'
         for s, en, uk, href in nav)
@@ -35,8 +35,8 @@ def page(slug, title_en, title_uk, desc, body):
 </div></header>
 {body}
 <footer><div class="wrap">
-  <span>© 2026 SEVEN AM LLC</span>
-  <span><a href="/privacy"><span lang="en">Privacy Policy</span><span lang="uk">Політика приватності</span></a> · <a href="/support"><span lang="en">Support</span><span lang="uk">Підтримка</span></a> · <a href="mailto:{CONTACT}">{CONTACT}</a></span>
+  <span>© 2026 SEVEN AM LLC · <span lang="en">Place data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a> (ODbL) · Photos from <a href="https://commons.wikimedia.org/">Wikimedia Commons</a>, credited in the app</span><span lang="uk">Дані про місця © <a href="https://www.openstreetmap.org/copyright">учасники OpenStreetMap</a> (ODbL) · Фото з <a href="https://commons.wikimedia.org/">Wikimedia Commons</a>, з авторством у застосунку</span></span>
+  <span><a href="/privacy"><span lang="en">Privacy Policy</span><span lang="uk">Політика приватності</span></a> · <a href="/support"><span lang="en">Support</span><span lang="uk">Підтримка</span></a> · <a href="/terms"><span lang="en">Terms of Use</span><span lang="uk">Умови використання</span></a> · <a href="mailto:{CONTACT}">{CONTACT}</a></span>
 </div></footer>
 </body>
 </html>
@@ -45,25 +45,25 @@ def page(slug, title_en, title_uk, desc, body):
 INDEX = f"""<main class="wrap">
 <section class="hero">
   <img class="icon" src="/icon-512.png" alt="Secret Places app icon">
-  <h1 lang="en">The city's best-kept secrets</h1>
-  <h1 lang="uk">Найкраще сховані секрети міста</h1>
-  <p class="lede" lang="en">Hidden courtyards, unmarked bars, quiet viewpoints and underground nights — curated by locals, revealed when you're ready to go. Now in 17 cities, from Lisbon to Tbilisi.</p>
-  <p class="lede" lang="uk">Приховані дворики, бари без вивісок, тихі оглядові майданчики й андерграундні вечірки — зібрані місцевими й відкриваються, коли ти готовий іти. Уже 17 міст — від Лісабона до Тбілісі.</p>
-  <span class="badge"><span lang="en">Coming soon to the App Store</span><span lang="uk">Незабаром в App Store</span></span>
+  <h1 lang="en">Lesser-known places, on open map data</h1>
+  <h1 lang="uk">Менш відомі місця на відкритих картографічних даних</h1>
+  <p class="lede" lang="en">Secret Places is a guide to lesser-known bars, rooftops and viewpoints, built on open map data.</p>
+  <p class="lede" lang="uk">Secret Places — це путівник менш відомими барами, дахами й оглядовими майданчиками, створений на відкритих картографічних даних.</p>
+  <p class="badge" role="status"><span lang="en">Secret Places is on pause while we rework it, and is not currently available in the App Store.</span><span lang="uk">Secret Places на паузі, поки ми його переробляємо, і зараз недоступний в App Store.</span></p>
 </section>
 <section class="features">
+  <div class="card"><span class="ic">🗺️</span>
+    <h3 lang="en">Built on OpenStreetMap</h3><h3 lang="uk">На основі OpenStreetMap</h3>
+    <p lang="en">Names, locations, addresses and opening hours come from OpenStreetMap open data. Short descriptions are generated automatically from that data.</p>
+    <p lang="uk">Назви, розташування, адреси й години роботи взято з відкритих даних OpenStreetMap. Короткі описи створюються з цих даних автоматично.</p></div>
   <div class="card"><span class="ic">🗝️</span>
-    <h3 lang="en">Secrets, kept secret</h3><h3 lang="uk">Секрети лишаються секретами</h3>
-    <p lang="en">Browse teasers for free. Unlock a place to get the exact spot, directions and insider tips.</p>
-    <p lang="uk">Переглядай тизери безкоштовно. Відкрий місце — отримаєш точну локацію, маршрут і поради.</p></div>
-  <div class="card"><span class="ic">🍸</span>
-    <h3 lang="en">Night routes</h3><h3 lang="uk">Нічні маршрути</h3>
-    <p lang="en">Curated bar crawls and underground nights, stop by stop — door words included.</p>
-    <p lang="uk">Готові бар-кроли та андерграундні вечори, зупинка за зупинкою — разом із паролями на вході.</p></div>
-  <div class="card"><span class="ic">🎟️</span>
-    <h3 lang="en">What's on</h3><h3 lang="uk">Афіша</h3>
-    <p lang="en">Concerts, theatre, markets and club nights in Ukrainian cities.</p>
-    <p lang="uk">Концерти, театр, маркети й клубні ночі в українських містах.</p></div>
+    <h3 lang="en">Teasers first</h3><h3 lang="uk">Спершу тизери</h3>
+    <p lang="en">Browse teasers for free. Some places and routes are unlocked with a one-time in-app purchase to see the exact spot and directions.</p>
+    <p lang="uk">Тизери переглядай безкоштовно. Деякі місця й маршрути відкриваються разовою покупкою в застосунку — тоді видно точне місце й маршрут.</p></div>
+  <div class="card"><span class="ic">📷</span>
+    <h3 lang="en">Openly licensed photos</h3><h3 lang="uk">Фото з відкритими ліцензіями</h3>
+    <p lang="en">Many photos come from Wikimedia Commons. Each one shows its author and licence in the app.</p>
+    <p lang="uk">Багато фото взято з Wikimedia Commons. Кожне показує автора й ліцензію в застосунку.</p></div>
 </section>
 </main>"""
 
@@ -110,9 +110,14 @@ PRIVACY = f"""<main class="wrap doc">
 {ul([
  ("<b>Supabase</b> — hosts our database, authentication and server functions.", "<b>Supabase</b> — хостинг бази даних, автентифікації та серверних функцій."),
  ("<b>Apple</b> — Sign in with Apple, App Store payments, and Apple Maps for maps in the app.", "<b>Apple</b> — вхід через Apple, оплата в App Store та Apple Maps для мап у застосунку."),
+ ("<b>Wikimedia Commons</b> — many place photos are loaded directly from Wikimedia's servers (Wikimedia Foundation), which can see your device's IP address when an image loads. See the <a href=\"https://foundation.wikimedia.org/wiki/Policy:Privacy_policy\">Wikimedia privacy policy</a>.", "<b>Wikimedia Commons</b> — багато фото місць завантажується безпосередньо із серверів Wikimedia (Wikimedia Foundation), які бачать IP-адресу пристрою під час завантаження зображення. Див. <a href=\"https://foundation.wikimedia.org/wiki/Policy:Privacy_policy\">політику приватності Wikimedia</a>."),
  ("<b>Google</b> — some venue photos are loaded directly from Google's servers, which can see your device's IP address when an image loads.", "<b>Google</b> — частина фото закладів завантажується безпосередньо із серверів Google, які бачать IP-адресу пристрою під час завантаження зображення."),
 ])}
 {p("We don't sell or share your personal data with anyone else, except where required by law.", "Ми не продаємо і не передаємо твої персональні дані іншим, окрім випадків, які вимагає закон.")}
+
+{h("Where place data comes from", "Звідки дані про місця")}
+{p('Place data (names, locations, addresses, opening hours, websites) is © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>, available under the Open Database License (ODbL). Place descriptions are generated automatically from that data. Photos marked © are from <a href="https://commons.wikimedia.org/">Wikimedia Commons</a>; each shows its author and licence in the app. Awards come from Wikidata.',
+   'Дані про місця (назви, розташування, адреси, години роботи, сайти) © <a href="https://www.openstreetmap.org/copyright">учасники OpenStreetMap</a>, доступні за ліцензією Open Database License (ODbL). Описи місць створюються з цих даних автоматично. Фото з позначкою © взято з <a href="https://commons.wikimedia.org/">Wikimedia Commons</a>; кожне показує автора й ліцензію в застосунку. Нагороди взято з Wikidata.')}
 
 {h("4. On your device", "4. На твоєму пристрої")}
 {p("Your sign-in session is stored in the iOS Keychain. Place data may be cached on the device for offline use; you can clear it in the app.",
@@ -159,13 +164,46 @@ SUPPORT = f"""<main class="wrap doc">
 {p(f"Thank you — tell us at {MAIL} with the place name and what changed. We check every report.", f"Дякуємо! Напиши на {MAIL} назву місця й що змінилося. Ми перевіряємо кожне повідомлення.")}</details>
 </main>"""
 
+TERMS = f"""<main class="wrap doc">
+{h("Terms of Use", "Умови використання", "h1")}
+<p class="meta"><span lang="en">Last updated: {UPDATED_EN}</span><span lang="uk">Оновлено: {UPDATED_UK}</span></p>
+{p('Secret Places is an iOS app operated by SEVEN AM LLC (“we”). It is licensed to you under Apple’s <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/">Licensed Application End User License Agreement</a> (the Standard EULA), together with these terms.',
+   'Secret Places — iOS-застосунок SEVEN AM LLC («ми»). Він надається тобі за <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/">стандартною ліцензійною угодою Apple</a> (Standard EULA) разом із цими умовами.')}
+{p("Secret Places is on pause while we rework it and is not currently available in the App Store.", "Secret Places на паузі, поки ми його переробляємо, і зараз недоступний в App Store.")}
+
+{h("1. In-app purchases", "1. Покупки в застосунку")}
+{p('Some places, routes and city passes are unlocked with one-time, non-consumable in-app purchases processed by Apple. They are not subscriptions: nothing renews and nothing is charged again. Prices are shown in the App Store in your currency before you buy. To restore purchases on a new device, sign in and open <b>Profile → Restore purchases</b>. Refunds are handled by Apple at <a href="https://reportaproblem.apple.com">reportaproblem.apple.com</a>.',
+   'Деякі місця, маршрути й міські пропуски відкриваються разовими (non-consumable) покупками в застосунку, які обробляє Apple. Це не підписки: нічого не поновлюється і повторно не списується. Ціну видно в App Store у твоїй валюті до покупки. Щоб відновити покупки на новому пристрої, увійди й відкрий <b>Профіль → Відновити покупки</b>. Повернення коштів обробляє Apple на <a href="https://reportaproblem.apple.com">reportaproblem.apple.com</a>.')}
+
+{h("2. Place information", "2. Інформація про місця")}
+{p('Place data comes from OpenStreetMap (© OpenStreetMap contributors, ODbL) and descriptions are generated automatically. Places can close, move or change their hours, so check before you go. Follow local laws and the rules of each venue. Photos from Wikimedia Commons remain under their authors’ licences.',
+   'Дані про місця взято з OpenStreetMap (© учасники OpenStreetMap, ODbL), а описи створюються автоматично. Місця можуть закритися, переїхати чи змінити години роботи, тож перевіряй перед виходом. Дотримуйся місцевих законів і правил кожного закладу. Фото з Wikimedia Commons лишаються під ліцензіями їхніх авторів.')}
+
+{h("3. Your account", "3. Твій акаунт")}
+{p('An account is optional and uses Sign in with Apple. You can delete it at any time in <b>Profile → Delete account</b>. See the <a href="/privacy">Privacy Policy</a>.',
+   'Акаунт необов’язковий і використовує вхід через Apple. Видалити його можна будь-коли в <b>Профіль → Видалити акаунт</b>. Див. <a href="/privacy">Політику приватності</a>.')}
+
+{h("4. Acceptable use", "4. Допустиме використання")}
+{p("Use the app lawfully. Don't copy its content in bulk, resell it, reverse engineer the app or interfere with its service.",
+   "Користуйся застосунком законно. Не копіюй його вміст масово, не перепродавай, не здійснюй зворотну розробку і не заважай роботі сервісу.")}
+
+{h("5. Disclaimer", "5. Відмова від відповідальності")}
+{p("The app is provided “as is”. To the extent permitted by law, we are not liable for indirect or consequential damages arising from its use, or for the accuracy of place information.",
+   "Застосунок надається «як є». У межах, дозволених законом, ми не відповідаємо за непрямі чи похідні збитки від його використання або за точність інформації про місця.")}
+
+{h("6. Contact", "6. Контакти")}
+{p(f"SEVEN AM LLC — {MAIL}", f"SEVEN AM LLC — {MAIL}")}
+</main>"""
+
 pages = {
-  "index.html": page("index", "Secret Places — hidden spots, revealed", "Secret Places — приховані місця",
-                     "Hidden courtyards, unmarked bars, quiet viewpoints and underground nights, curated by locals.", INDEX),
+  "index.html": page("index", "Secret Places — lesser-known places on open map data", "Secret Places — менш відомі місця на відкритих даних",
+                     "A guide to lesser-known bars, rooftops and viewpoints, built on OpenStreetMap open data. On pause while we rework it.", INDEX),
   "privacy/index.html": page("privacy", "Privacy Policy — Secret Places", "Політика приватності — Secret Places",
                        "How the Secret Places app handles your data.", PRIVACY),
   "support/index.html": page("support", "Support — Secret Places", "Підтримка — Secret Places",
                        "Help with Secret Places: purchases, restore, account deletion and contact.", SUPPORT),
+  "terms/index.html": page("terms", "Terms of Use — Secret Places", "Умови використання — Secret Places",
+                       "Terms of use and in-app purchase terms for Secret Places.", TERMS),
 }
 for name, html in pages.items():
     out = HERE / name
